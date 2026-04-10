@@ -114,3 +114,38 @@ EXPORT void cw_window_set_shadow_width(void *gtk_window, int top, int left,
                      shadow_width);
   }
 }
+typedef struct {
+  cw_delegate_config_t config;
+} cw_delegate_state_t;
+
+static void cw_delegate_state_destroy(cw_delegate_state_t *state) {
+  free(state);
+}
+
+static void cw_delegate_window_state_changed(GtkWindow *window,
+                                             GdkEventWindowState *event,
+                                             cw_delegate_state_t *state) {
+  state->config.on_window_state_changed();
+}
+
+void cw_gtk_window_init_delegate(void *gtk_window,
+                                 cw_delegate_config_t config) {
+  GtkWidget *window = GTK_WIDGET(gtk_window);
+  cw_delegate_state_t *state = malloc(sizeof(cw_delegate_state_t));
+  state->config = config;
+
+  g_signal_connect(window, "destroy", G_CALLBACK(config.on_window_will_close),
+                   NULL);
+  g_signal_connect(window, "window-state-event",
+                   G_CALLBACK(cw_delegate_window_state_changed), state);
+  g_object_weak_ref(G_OBJECT(window), (GWeakNotify)cw_delegate_state_destroy,
+                    state);
+}
+
+cw_window_state_t cw_window_get_state(void *gtk_window) {
+  GtkWidget *window = GTK_WIDGET(gtk_window);
+  GdkWindow *gdk_window = gtk_widget_get_window(window);
+  g_return_val_if_fail(gdk_window != NULL, 0);
+  GdkWindowState state = gdk_window_get_state(gdk_window);
+  return (cw_window_state_t)state;
+}

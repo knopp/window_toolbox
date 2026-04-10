@@ -10,8 +10,8 @@
             "request": "launch",
             "type": "dart",
             "toolArgs":[
-                "--local-engine=host_debug_unopt_arm64",
-                "--local-engine-host=host_debug_unopt_arm64",
+                // "--local-engine=host_debug_unopt_arm64",
+                // "--local-engine-host=host_debug_unopt_arm64",
             ]
         },
         {

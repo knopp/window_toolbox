@@ -33,7 +33,7 @@ void main() {
   }
 
   bool filter(Declaration declaration) =>
-      declaration.originalName.startsWith('cw_');
+      declaration.originalName.toLowerCase().startsWith('cw_');
 
   FfiGenerator(
     output: Output(

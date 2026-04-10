@@ -4,8 +4,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:headless_widgets/headless_widgets.dart';
 import 'custom_window.dart';
+import 'linux_extra.dart';
 
 import 'package:flutter/src/widgets/_window.dart';
+import 'package:flutter/src/widgets/_window_linux.dart';
 
 /// Represents an area in Window that can be used to drag the window. This is
 /// typically used to implement custom title bars.
@@ -451,7 +453,7 @@ class _WindowTrafficLightState
   }
 }
 
-class _WindowBorderState extends State<WindowBorder> {
+class _WindowBorderState extends State<WindowBorder> with WindowDelegateLinux {
   // Complete padding around the content, must be enough for shadow to blend smoothly
   static const _borderPadding = 16.0;
   // Part of border padding that can is user interactive (resizing handles)
@@ -461,7 +463,8 @@ class _WindowBorderState extends State<WindowBorder> {
 
   @override
   void didChangeDependencies() {
-    final customWindow = CustomWindow.forController(WindowScope.of(context));
+    final controller = WindowScope.of(context);
+    final customWindow = CustomWindow.forController(controller);
     if (customWindow != null && customWindow.windowNeedsCustomBorder()) {
       customWindow.setCustomBorderShadowWidth(
         _borderPadding,
@@ -470,8 +473,27 @@ class _WindowBorderState extends State<WindowBorder> {
         _borderPadding,
       );
     }
+    _controller?.removeDelegate(this);
+    if (controller is WindowControllerLinux) {
+      _controller = controller as WindowControllerLinux;
+      _controller!.addDelegate(this);
+    }
     super.didChangeDependencies();
   }
+
+  @override
+  void dispose() {
+    _controller?.removeDelegate(this);
+    _controller = null;
+    super.dispose();
+  }
+
+  @override
+  void windowStateDidChange() {
+    setState(() {});
+  }
+
+  WindowControllerLinux? _controller;
 
   @override
   Widget build(BuildContext context) {
@@ -479,9 +501,19 @@ class _WindowBorderState extends State<WindowBorder> {
     if (customWindow == null || !customWindow.windowNeedsCustomBorder()) {
       return widget.child;
     }
-    // TODO: This should be adjusted when window is maximized
-    // (or docked to the side of screen)
-    final effectiveCornerRadius = widget.cornerRadius;
+    double effectiveCornerRadius = widget.cornerRadius;
+    if (_controller != null) {
+      final state = _controller!.getWindowStateLinux();
+      if (state.maximized ||
+          state.fullscreen ||
+          state.topTiled ||
+          state.rightTiled ||
+          state.bottomTiled ||
+          state.leftTiled) {
+        effectiveCornerRadius = 0;
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.all(
         _borderPadding -
@@ -503,11 +535,12 @@ class _WindowBorderState extends State<WindowBorder> {
                 color: Color(0xFF000000).withValues(alpha: 0.1),
               ),
               boxShadow: [
-                BoxShadow(
-                  color: Color(0xFF000000).withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  spreadRadius: 1,
-                ),
+                if (effectiveCornerRadius > 0)
+                  BoxShadow(
+                    color: Color(0xFF000000).withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
               ],
             ),
             child: Padding(

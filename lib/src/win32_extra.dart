@@ -8,6 +8,10 @@ import 'dart:ffi' as ffi;
 import 'package:win32/win32.dart';
 import 'package:ffi/ffi.dart' as ffi;
 
+/// Provides additional delegate methods for [WindowControllerWin32].
+///
+/// The delegate can be added to window controller using
+/// [WindowControllerWin32Extension.addDelegate] method.
 abstract mixin class WindowDelegateWin32 {
   /// Called right before the window is closed. This is the best place to add
   /// any platform specific cleanup code.
@@ -127,6 +131,6 @@ class _WindowControllerWin32Private implements WindowsMessageHandler {
   final List<WindowDelegateWin32> _delegates = [];
 
   static final _expando = Expando<_WindowControllerWin32Private>(
-    'WindowControllerMacWin32',
+    'WindowControllerWin32',
   );
 }

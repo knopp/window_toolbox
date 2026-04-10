@@ -14,12 +14,13 @@ import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/src/widgets/_window.dart';
 import 'package:flutter/src/widgets/_window_macos.dart';
 import 'package:flutter/src/widgets/_window_win32.dart';
+import 'package:flutter/src/widgets/_window_linux.dart';
 
 class MainControllerWindowDelegate with RegularWindowControllerDelegate {
   @override
   void onWindowDestroyed() {
     super.onWindowDestroyed();
-    exit(0);
+    // exit(0);
   }
 }
 
@@ -243,6 +244,18 @@ class _WindowDelegateWin32 extends WindowDelegateWin32 {
   }
 }
 
+class _WindowDelegateLinux extends WindowDelegateLinux {
+  @override
+  void windowWillClose() {
+    print('Window will close for sure1');
+  }
+
+  @override
+  void windowStateDidChange() {
+    print('Window state changed.');
+  }
+}
+
 class _MultiWindowAppState extends State<MultiWindowApp> {
   late final RegularWindowController controller;
 
@@ -260,6 +273,9 @@ class _MultiWindowAppState extends State<MultiWindowApp> {
     if (controller is WindowControllerWin32) {
       (controller as WindowControllerWin32).addDelegate(_WindowDelegateWin32());
       (controller as WindowControllerWin32).updateSize();
+    }
+    if (controller is WindowControllerLinux) {
+      (controller as WindowControllerLinux).addDelegate(_WindowDelegateLinux());
     }
     super.initState();
   }

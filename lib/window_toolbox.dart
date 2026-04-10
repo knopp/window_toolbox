@@ -1,6 +1,7 @@
 export 'src/widgets.dart';
 export 'src/macos_extra.dart';
 export 'src/win32_extra.dart';
+export 'src/linux_extra.dart';
 
 import 'package:window_toolbox/src/widgets.dart';
 
