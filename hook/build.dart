@@ -35,16 +35,6 @@ void main(List<String> args) async {
         frameworks: ['AppKit'],
         flags: ['-O0', '-g3', "-fobjc-arc"],
       );
-    } else if (input.config.code.targetOS == OS.windows) {
-      ninjaBuilder = NinjaBuilder.library(
-        name: packageName,
-        assetName: 'windows',
-        sources: ['src/windows.cc'],
-        language: Language.cpp,
-        libraries: ['user32', 'dwmapi'],
-        flags: [],
-        defines: {'CW_BUILDING_DLL': ''},
-      );
     } else if (input.config.code.targetOS == OS.linux) {
       ninjaBuilder = NinjaBuilder.library(
         name: packageName,
@@ -52,10 +42,7 @@ void main(List<String> args) async {
         sources: ['src/linux.c'],
         buildMode: BuildMode.debug,
         optimizationLevel: OptimizationLevel.o0,
-        flags: [
-          '-g',
-          ...(await _pkgConfig('--cflags', 'gtk+-3.0')),
-        ],
+        flags: ['-g', ...(await _pkgConfig('--cflags', 'gtk+-3.0'))],
         language: Language.c,
         libraries: [
           // Everything we need will be linked into the final executable.

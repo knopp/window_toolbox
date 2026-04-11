@@ -24,10 +24,6 @@ void main() {
     entryPoint = 'macos.h';
     generatedFile = 'macos.g.dart';
     assetId = 'macos';
-  } else if (Platform.isWindows) {
-    entryPoint = 'windows.h';
-    generatedFile = 'windows.g.dart';
-    assetId = 'windows';
   } else if (Platform.isLinux) {
     entryPoint = 'linux.h';
     generatedFile = 'linux.g.dart';
