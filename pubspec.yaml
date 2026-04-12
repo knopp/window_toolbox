@@ -5,6 +5,7 @@ url: https://github.com/knopp/window_toolbox
 
 environment:
   sdk: ^3.12.0
+  flutter: ">=3.42.0"
 
 dependencies:
   flutter:
