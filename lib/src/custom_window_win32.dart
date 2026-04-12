@@ -1,5 +1,3 @@
-// ignore_for_file: invalid_use_of_internal_member, implementation_imports
-
 import 'package:ffi/ffi.dart';
 import 'package:flutter/widgets.dart';
 import 'package:win32/win32.dart';
@@ -12,7 +10,7 @@ import 'package:flutter/src/widgets/_window_win32.dart'
 
 import 'dart:ffi' hide Size;
 
-import 'win32_api.dart';
+import 'win32_util.dart';
 
 class SubclassState {
   bool needRearmMouseTracker = false;

@@ -1,5 +1,3 @@
-// ignore_for_file: implementation_imports, invalid_use_of_internal_member
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,31 +7,70 @@ import 'custom_window.dart';
 
 import 'package:flutter/src/widgets/_window.dart';
 
-class WindowDraggableArea extends StatefulWidget {
-  const WindowDraggableArea({super.key, required this.child});
+/// Represents an area in Window that can be used to drag the window. This is
+/// typically used to implement custom title bars.
+///
+/// The widgets inside the area are still interactive, but pan gestures
+/// will not work as pan gesture will result in dragging the window.
+///
+/// To mark sub-areas that should not trigger dragging, use [WindowDragExcludeArea].
+class WindowDragArea extends StatefulWidget {
+  const WindowDragArea({
+    super.key,
+    required this.child,
+  });
 
   final Widget child;
 
   @override
-  State<WindowDraggableArea> createState() => _WindowDraggableAreaState();
+  State<WindowDragArea> createState() => _WindowDragAreaState();
 }
 
-class WindowDraggableExclude extends StatefulWidget {
-  const WindowDraggableExclude({super.key, required this.child});
+/// Represents area within [WindowDragArea] that should not trigger window dragging.
+/// This is typically used for toolbar or tabs that are placed inside title bar.
+class WindowDragExcludeArea extends StatefulWidget {
+  const WindowDragExcludeArea({
+    super.key,
+    required this.child,
+  });
 
   final Widget child;
 
   @override
-  State<WindowDraggableExclude> createState() => _WindowDragExcludeState();
+  State<WindowDragExcludeArea> createState() => _WindowDragExcludeState();
 }
 
+enum WindowTrafficLightMode {
+  /// Traffic light buttons are visible and take space in layout.
+  visible,
+
+  /// Traffic light buttons are invisible but still take space in layout.
+  invisible,
+
+  /// Traffic light buttons are absent and do not take space in layout.
+  removed,
+}
+
+/// Represents macOS traffic light buttons. Wherever this width is placed, the
+/// window traffic light buttons will be positioned.
+///
+/// On other platform this renders as [SizedBox.shrink] and has no effect.
 class WindowTrafficLight extends StatefulWidget {
-  const WindowTrafficLight({super.key});
+  const WindowTrafficLight({
+    super.key,
+    this.mode = WindowTrafficLightMode.visible,
+  });
+
+  /// Traffic light visibility mode.
+  final WindowTrafficLightMode mode;
 
   @override
   State<WindowTrafficLight> createState() => _WindowTrafficLightState();
 }
 
+/// Represents state of a titlebar button (close, minimize, maximize).
+/// This is used in content builder of [CloseButton], [MinimizeButton]
+/// and [MaximizeButton].
 class TitlebarButtonState {
   TitlebarButtonState({
     required this.enabled,
@@ -41,13 +78,26 @@ class TitlebarButtonState {
     required this.pressed,
   });
 
+  /// Whether the button is enabled (clickable).
   final bool enabled;
+
+  /// Whether the button is currently hovered by mouse cursor.
   final bool hovered;
+
+  /// Whether the button is currently pressed and mouse cursor is inside button area.
   final bool pressed;
 }
 
+/// Button for maximizing and restoring the window.
+///
+/// Supports displaying [snap layout](https://support.microsoft.com/en-us/windows/snap-your-windows-885a9b1e-a983-a3b1-16cd-c531795e6241)
+/// on Windows when hovered.
 class MaximizeButton extends StatefulWidget {
-  const MaximizeButton({super.key, required this.builder, this.enabled = true});
+  const MaximizeButton({
+    super.key,
+    required this.builder,
+    this.enabled = true,
+  });
 
   final Widget Function(
     BuildContext context,
@@ -62,6 +112,7 @@ class MaximizeButton extends StatefulWidget {
   State<MaximizeButton> createState() => _MaximizeButtonState();
 }
 
+/// Button for minimizing the window.
 class MinimizeButton extends StatefulWidget {
   const MinimizeButton({super.key, required this.builder, this.enabled = true});
 
@@ -74,6 +125,11 @@ class MinimizeButton extends StatefulWidget {
   State<MinimizeButton> createState() => _MinimizeButtonState();
 }
 
+/// Button for closing the window.
+///
+/// This button triggers same action as native close button would,
+/// meaning that the action can be prevented by overriding
+/// [RegularWindowControllerDelegate.onWindowCloseRequested].
 class CloseButton extends StatefulWidget {
   const CloseButton({super.key, required this.builder, this.enabled = true});
 
@@ -86,10 +142,31 @@ class CloseButton extends StatefulWidget {
   State<CloseButton> createState() => _CloseButtonState();
 }
 
+/// Widget that draws custom border and shadow around the window.
+/// This will only have effect on Linux, on other platforms system
+/// compositor will draw the border and shadow.
+class WindowBorder extends StatefulWidget {
+  const WindowBorder({
+    super.key,
+    required this.child,
+    this.cornerRadius = 12.0,
+  });
+
+  final Widget child;
+  final double cornerRadius;
+
+  @override
+  State<WindowBorder> createState() => _WindowBorderState();
+}
+
+//
+// Implementation details.
+//
+
 class _CloseButtonState extends State<CloseButton> {
   @override
   Widget build(BuildContext context) {
-    return WindowDraggableExclude(
+    return WindowDragExcludeArea(
       child: Button(
         builder: (context, buttonState, child) {
           return widget.builder(
@@ -131,7 +208,7 @@ class _CloseButtonState extends State<CloseButton> {
 class _MinimizeButtonState extends State<MinimizeButton> {
   @override
   Widget build(BuildContext context) {
-    return WindowDraggableExclude(
+    return WindowDragExcludeArea(
       child: Button(
         builder: (context, buttonState, child) {
           return widget.builder(
@@ -177,7 +254,7 @@ class _MinimizeButtonState extends State<MinimizeButton> {
 class _MaximizeButtonState extends _FrameReportingState<MaximizeButton> {
   @override
   Widget build(BuildContext context) {
-    return WindowDraggableExclude(
+    return WindowDragExcludeArea(
       child: Button(
         builder: (context, buttonState, child) {
           return widget.builder(
@@ -198,7 +275,6 @@ class _MaximizeButtonState extends _FrameReportingState<MaximizeButton> {
 
   void _onPressed() {
     final controller = WindowScope.of(context) as RegularWindowController;
-    print('**** BUTTON TAP ****');
     controller.setMaximized(!controller.isMaximized);
   }
 
@@ -289,8 +365,7 @@ abstract class _FrameReportingState<T extends StatefulWidget> extends State<T> {
   }
 }
 
-class _WindowDraggableAreaState
-    extends _FrameReportingState<WindowDraggableArea> {
+class _WindowDragAreaState extends _FrameReportingState<WindowDragArea> {
   @override
   Widget build(BuildContext context) {
     final gestures = <Type, GestureRecognizerFactory>{};
@@ -315,14 +390,13 @@ class _WindowDraggableAreaState
       gestures[_DoubleTapToMaximizeGestureRecognizer] =
           GestureRecognizerFactoryWithHandlers<
             _DoubleTapToMaximizeGestureRecognizer
-          >(
-            () => _DoubleTapToMaximizeGestureRecognizer(debugOwner: this),
-            (_DoubleTapToMaximizeGestureRecognizer instance) {
-              instance.onDoubleTap = () {
-                controller.setMaximized(!controller.isMaximized);
-              };
-            },
-          );
+          >(() => _DoubleTapToMaximizeGestureRecognizer(debugOwner: this), (
+            _DoubleTapToMaximizeGestureRecognizer instance,
+          ) {
+            instance.onDoubleTap = () {
+              controller.setMaximized(!controller.isMaximized);
+            };
+          });
     }
     if (gestures.isNotEmpty) {
       return RawGestureDetector(
@@ -342,12 +416,10 @@ class _WindowDraggableAreaState
 }
 
 class _WindowDragExcludeState
-    extends _FrameReportingState<WindowDraggableExclude> {
+    extends _FrameReportingState<WindowDragExcludeArea> {
   @override
   Widget build(BuildContext context) {
-    return _DragExcludeWidget(
-      child: widget.child,
-    );
+    return _DragExcludeWidget(child: widget.child);
   }
 
   @override
@@ -361,7 +433,7 @@ class _WindowTrafficLightState
   @override
   Widget build(BuildContext context) {
     final customWindow = CustomWindow.forController(WindowScope.of(context));
-    if (customWindow == null) {
+    if (customWindow == null || widget.mode == WindowTrafficLightMode.removed) {
       return const SizedBox.shrink();
     } else {
       return SizedBox.fromSize(size: customWindow.getTrafficLightSize());
@@ -370,24 +442,13 @@ class _WindowTrafficLightState
 
   @override
   void reportFrame(CustomWindow window, Rect? rect) {
-    if (rect != null) {
+    if (widget.mode == WindowTrafficLightMode.invisible ||
+        widget.mode == WindowTrafficLightMode.removed) {
+      window.setTrafficLightPosition(Offset(0, -100));
+    } else if (rect != null) {
       window.setTrafficLightPosition(rect.topLeft);
     }
   }
-}
-
-class WindowBorder extends StatefulWidget {
-  const WindowBorder({
-    super.key,
-    required this.child,
-    this.cornerRadius = 12.0,
-  });
-
-  final Widget child;
-  final double cornerRadius;
-
-  @override
-  State<WindowBorder> createState() => _WindowBorderState();
 }
 
 class _WindowBorderState extends State<WindowBorder> {

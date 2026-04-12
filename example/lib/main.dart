@@ -9,10 +9,10 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:windowkit/src/custom_window.dart';
-import 'package:windowkit/src/widgets.dart';
+import 'package:windowkit/windowkit.dart';
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/src/widgets/_window.dart';
+import 'package:flutter/src/widgets/_window_macos.dart';
 
 class MainControllerWindowDelegate with RegularWindowControllerDelegate {
   @override
@@ -55,7 +55,7 @@ class MainWindow extends StatelessWidget {
           TitleBar(),
           SizedBox(height: 50),
           Center(
-            child: WindowDraggableArea(
+            child: WindowDragArea(
               child: Container(
                 color: Colors.green,
                 padding: EdgeInsets.all(40),
@@ -74,7 +74,7 @@ class TitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WindowDraggableArea(
+    return WindowDragArea(
       child: Container(
         decoration: BoxDecoration(
           color: Colors.grey.shade400,
@@ -87,6 +87,10 @@ class TitleBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(width: 20),
+            Center(
+              child: WindowTrafficLight(mode: WindowTrafficLightMode.visible),
+            ),
+            SizedBox(width: 20),
             GestureDetector(
               onTap: () {
                 print('Titlebar tapped');
@@ -95,10 +99,10 @@ class TitleBar extends StatelessWidget {
                 child: Text('Custom Titlebar', style: TextStyle(fontSize: 18)),
               ),
             ),
-            Center(child: WindowTrafficLight()),
+
             Spacer(),
             Center(
-              child: WindowDraggableExclude(
+              child: WindowDragExcludeArea(
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.grey.shade400,
@@ -189,6 +193,43 @@ class TitleBar extends StatelessWidget {
   }
 }
 
+class _WindowDelegateMacOS extends WindowDelegateMacOS {
+  @override
+  void windowWillClose() {
+    print('Window will close for sure1');
+  }
+
+  @override
+  Size? windowWillResizeToSize(Size newSize) {
+    return Size(newSize.width, newSize.width / 2);
+  }
+
+  @override
+  void windowWillEnterFullScreen() {
+    print('Window will enter fullscreen');
+  }
+
+  @override
+  void windowDidEnterFullScreen() {
+    print('Window did enter fullscreen');
+  }
+
+  @override
+  void windowWillExitFullScreen() {
+    print('Window will exit fullscreen');
+  }
+
+  @override
+  void windowDidExitFullScreen() {
+    print('Window did exit fullscreen');
+  }
+
+  @override
+  Rect? windowWillUseStandardFrame(Rect defaultFrame) {
+    return null;
+  }
+}
+
 class _MultiWindowAppState extends State<MultiWindowApp> {
   late final RegularWindowController controller;
 
@@ -199,7 +240,10 @@ class _MultiWindowAppState extends State<MultiWindowApp> {
       title: 'Multi-Window Reference Application',
       delegate: MainControllerWindowDelegate(),
     );
-    CustomWindow.init(controller);
+    controller.enableCustomWindow();
+    if (controller is WindowControllerMacOS) {
+      (controller as WindowControllerMacOS).addDelegate(_WindowDelegateMacOS());
+    }
     super.initState();
   }
 

@@ -1,5 +1,3 @@
-// ignore_for_file: invalid_use_of_internal_member, implementation_imports
-
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
@@ -8,13 +6,22 @@ import 'package:flutter/src/widgets/_window_macos.dart';
 import 'custom_window.dart';
 import 'invert_rectanges.dart';
 import 'macos.g.dart';
+import 'macos_extra.dart';
 
 import 'dart:ffi' hide Size;
 import 'package:ffi/ffi.dart' as ffi;
 
-class CustomWindowMacOS extends CustomWindow {
-  CustomWindowMacOS(this.controller) {
+class CustomWindowMacOS extends CustomWindow with WindowDelegateMacOS {
+  CustomWindowMacOS(this.controller, {required this.onClose}) {
     cw_nswindow_remove_titlebar(controller.getWindowHandle());
+    controller.addDelegate(this);
+  }
+
+  final VoidCallback onClose;
+
+  @override
+  void windowWillClose() {
+    onClose();
   }
 
   final WindowControllerMacOS controller;

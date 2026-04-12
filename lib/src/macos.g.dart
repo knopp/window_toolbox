@@ -8,7 +8,9 @@ library;
 import 'dart:ffi' as ffi;
 
 @ffi.Native<ffi.Void Function(ffi.Pointer<ffi.Void>)>()
-external void cw_nswindow_remove_titlebar(ffi.Pointer<ffi.Void> ns_window);
+external void cw_nswindow_remove_titlebar(
+  ffi.Pointer<ffi.Void> ns_window,
+);
 
 @ffi.Native<
   ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<cw_rect_t>, ffi.Size)
@@ -35,7 +37,15 @@ external void cw_nswindow_update_traffic_light(
 );
 
 @ffi.Native<ffi.Void Function(ffi.Pointer<ffi.Void>)>()
-external void cw_nswindow_request_close(ffi.Pointer<ffi.Void> ns_window);
+external void cw_nswindow_request_close(
+  ffi.Pointer<ffi.Void> ns_window,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<ffi.Void>, cw_delegate_config_t)>()
+external void cw_nswindow_init_delegate(
+  ffi.Pointer<ffi.Void> ns_window,
+  cw_delegate_config_t config,
+);
 
 final class cw_rect_t extends ffi.Struct {
   @ffi.Double()
@@ -49,4 +59,39 @@ final class cw_rect_t extends ffi.Struct {
 
   @ffi.Double()
   external double h;
+}
+
+final class cw_size_t extends ffi.Struct {
+  @ffi.Double()
+  external double w;
+
+  @ffi.Double()
+  external double h;
+}
+
+final class cw_delegate_config_t extends ffi.Struct {
+  external ffi.Pointer<
+    ffi.NativeFunction<cw_size_t Function(cw_size_t new_size)>
+  >
+  on_window_will_resize;
+
+  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
+  on_window_will_close;
+
+  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
+  on_window_will_enter_fullscreen;
+
+  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
+  on_window_did_enter_fullscreen;
+
+  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
+  on_window_will_exit_fullscreen;
+
+  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
+  on_window_did_exit_fullscreen;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<cw_rect_t Function(cw_rect_t default_frame)>
+  >
+  on_window_will_use_standard_frame;
 }

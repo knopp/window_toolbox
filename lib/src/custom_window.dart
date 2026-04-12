@@ -1,5 +1,3 @@
-// ignore_for_file: implementation_imports, invalid_use_of_internal_member
-
 import 'package:flutter/src/widgets/_window.dart';
 import 'package:flutter/src/widgets/_window_macos.dart';
 import 'package:flutter/src/widgets/_window_win32.dart';
@@ -16,7 +14,12 @@ abstract class CustomWindow {
   }
 
   static void init(BaseWindowController controller) {
-    final created = _create(controller);
+    final created = _create(
+      controller,
+      onClose: () {
+        _expando[controller] = null;
+      },
+    );
     if (created != null) {
       _expando[controller] = created;
     }
@@ -24,9 +27,15 @@ abstract class CustomWindow {
 
   static final _expando = Expando<CustomWindow>('CustomWindow');
 
-  static CustomWindow? _create(BaseWindowController controller) {
+  static CustomWindow? _create(
+    BaseWindowController controller, {
+    required VoidCallback onClose,
+  }) {
     if (controller is WindowControllerMacOS) {
-      return CustomWindowMacOS(controller as WindowControllerMacOS);
+      return CustomWindowMacOS(
+        controller as WindowControllerMacOS,
+        onClose: onClose,
+      );
     } else if (controller is WindowControllerWin32) {
       return CustomWindowWin32(controller as WindowControllerWin32);
     } else if (controller is WindowControllerLinux) {
