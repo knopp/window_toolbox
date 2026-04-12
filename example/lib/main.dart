@@ -5,33 +5,22 @@
 // ignore_for_file: invalid_use_of_internal_member
 // ignore_for_file: implementation_imports
 
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:window_toolbox/window_toolbox.dart';
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/src/widgets/_window.dart';
-import 'package:flutter/src/widgets/_window_macos.dart';
-import 'package:flutter/src/widgets/_window_win32.dart';
-import 'package:flutter/src/widgets/_window_linux.dart';
+import 'package:window_toolbox_example/icons.dart';
 
 class MainControllerWindowDelegate with RegularWindowControllerDelegate {
   @override
   void onWindowDestroyed() {
     super.onWindowDestroyed();
-    // exit(0);
+    exit(0);
   }
 }
 
 void main() async {
-  final info = await Service.getInfo();
-  if (info.serverUri != null) {
-    final json = {'uri': info.serverUri.toString()};
-    File('vmservice.json').writeAsStringSync(jsonEncode(json));
-  }
-  WidgetsFlutterBinding.ensureInitialized();
-
   runWidget(MultiWindowApp());
 }
 
@@ -49,19 +38,27 @@ class MainWindow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Colors.grey.shade300),
+    return ColoredBox(
+      color: Colors.grey.shade300,
       child: Column(
         mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TitleBar(),
-          SizedBox(height: 50),
-          Center(
-            child: WindowDragArea(
-              child: Container(
-                color: Colors.green,
-                padding: EdgeInsets.all(40),
-                child: Text('Draggable Area Widget'),
+          Spacer(),
+          WindowDragArea(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.shade400,
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade500, width: 1),
+                ),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Additional Draggable Area',
+                style: TextStyle(fontSize: 13),
               ),
             ),
           ),
@@ -85,109 +82,55 @@ class TitleBar extends StatelessWidget {
           ),
         ),
         height: 50,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
+          fit: StackFit.passthrough,
           children: [
-            SizedBox(width: 20),
-            Center(
-              child: WindowTrafficLight(mode: WindowTrafficLightMode.visible),
-            ),
-            SizedBox(width: 20),
-            GestureDetector(
-              onTap: () {
-                print('Titlebar tapped');
-              },
-              child: Center(
-                child: Text('Custom Titlebar', style: TextStyle(fontSize: 18)),
-              ),
-            ),
-
-            Spacer(),
-            Center(
-              child: WindowDragExcludeArea(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade400,
-                    border: Border.all(color: Colors.grey.shade500, width: 1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Text('Non-draggable area for tabs or other controls'),
-                ),
-              ),
-            ),
-            Spacer(),
-            Container(
-              alignment: Alignment.topCenter,
-              child: Container(
-                height: 34,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  border: Border(
-                    left: BorderSide(color: Colors.grey.shade500, width: 1),
-                    bottom: BorderSide(color: Colors.grey.shade500, width: 1),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Spacer(),
+                Center(
+                  child: WindowDragExcludeArea(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade400,
+                        border: Border.all(
+                          color: Colors.grey.shade500,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      child: Text(
+                        'Non-draggable area for tabs or other controls',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                    ),
                   ),
                 ),
-                child: Row(
-                  children: [
-                    MinimizeButton(
-                      builder: (context, state) {
-                        Color color;
-                        if (state.pressed) {
-                          color = Colors.white.withValues(alpha: 0.5);
-                        } else if (state.hovered) {
-                          color = Colors.white.withValues(alpha: 0.3);
-                        } else {
-                          color = Colors.transparent;
-                        }
-                        return Container(
-                          width: 40,
-                          color: color,
-                          alignment: Alignment.center,
-                          child: Icon(Icons.horizontal_rule_outlined),
-                        );
-                      },
-                    ),
-                    MaximizeButton(
-                      builder: (context, state, isMaximized) {
-                        Color color;
-                        if (state.pressed) {
-                          color = Colors.white.withValues(alpha: 0.5);
-                        } else if (state.hovered) {
-                          color = Colors.white.withValues(alpha: 0.3);
-                        } else {
-                          color = Colors.transparent;
-                        }
-                        return Container(
-                          width: 40,
-                          color: color,
-                          alignment: Alignment.center,
-                          child: Icon(Icons.square_outlined),
-                        );
-                      },
-                    ),
-                    CloseButton(
-                      builder: (context, state) {
-                        Color color;
-                        if (state.pressed) {
-                          color = Colors.red.shade700;
-                        } else if (state.hovered) {
-                          color = Colors.red;
-                        } else {
-                          color = Colors.transparent;
-                        }
-                        return Container(
-                          width: 40,
-                          color: color,
-                          alignment: Alignment.center,
-                          child: Icon(Icons.close_outlined),
-                        );
-                      },
-                    ),
-                  ],
+                Spacer(),
+              ],
+            ),
+            if (Platform.isMacOS)
+              Positioned(
+                left: 20,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: WindowTrafficLight(
+                    mode: WindowTrafficLightMode.visible,
+                  ),
                 ),
               ),
-            ),
+            if (!Platform.isMacOS)
+              Positioned(
+                right: 0,
+                top: 0,
+                child: _WindowButtons(),
+              ),
           ],
         ),
       ),
@@ -195,64 +138,80 @@ class TitleBar extends StatelessWidget {
   }
 }
 
-class _WindowDelegateMacOS extends WindowDelegateMacOS {
-  @override
-  void windowWillClose() {
-    print('Window will close for sure1');
-  }
+class _WindowButtons extends StatelessWidget {
+  // ignore: unused_element_parameter
+  const _WindowButtons({super.key});
 
   @override
-  Size? windowWillResizeToSize(Size newSize) {
-    return Size(newSize.width, newSize.width / 2);
-  }
-
-  @override
-  void windowWillEnterFullScreen() {
-    print('Window will enter fullscreen');
-  }
-
-  @override
-  void windowDidEnterFullScreen() {
-    print('Window did enter fullscreen');
-  }
-
-  @override
-  void windowWillExitFullScreen() {
-    print('Window will exit fullscreen');
-  }
-
-  @override
-  void windowDidExitFullScreen() {
-    print('Window did exit fullscreen');
-  }
-
-  @override
-  Rect? windowWillUseStandardFrame(Rect defaultFrame) {
-    return null;
-  }
-}
-
-class _WindowDelegateWin32 extends WindowDelegateWin32 {
-  @override
-  void windowWillClose() {
-    print('Window will close for sure1');
-  }
-
-  @override
-  Size? windowWillResizeToSize(Size newSize) {
-    return Size(newSize.width, newSize.width / 2);
-  }
-}
-
-class _WindowDelegateLinux extends WindowDelegateLinux {
-  @override
-  void windowWillClose() {
-    print('Window will close for sure1');
-  }
-
-  @override
-  void windowStateDidChange() {
-    print('Window state changed.');
+  Widget build(BuildContext context) {
+    const buttonSize = Size(40, 34);
+    return SizedBox(
+      height: buttonSize.height,
+      child: Row(
+        children: [
+          MinimizeButton(
+            builder: (context, state) {
+              final Color backgroundColor;
+              if (state.pressed) {
+                backgroundColor = Colors.white.withValues(alpha: 0.5);
+              } else if (state.hovered) {
+                backgroundColor = Colors.white.withValues(alpha: 0.3);
+              } else {
+                backgroundColor = Colors.transparent;
+              }
+              return Container(
+                width: buttonSize.width,
+                color: backgroundColor,
+                alignment: Alignment.center,
+                child: MinimizeIcon(color: Colors.black),
+              );
+            },
+          ),
+          MaximizeButton(
+            builder: (context, state, isMaximized) {
+              final Color backgroundColor;
+              if (state.pressed) {
+                backgroundColor = Colors.white.withValues(alpha: 0.5);
+              } else if (state.hovered) {
+                backgroundColor = Colors.white.withValues(alpha: 0.3);
+              } else {
+                backgroundColor = Colors.transparent;
+              }
+              return Container(
+                width: buttonSize.width,
+                color: backgroundColor,
+                alignment: Alignment.center,
+                child: isMaximized
+                    ? RestoreIcon(color: Colors.black)
+                    : MaximizeIcon(color: Colors.black),
+              );
+            },
+          ),
+          CloseButton(
+            builder: (context, state) {
+              final Color backgroundColor;
+              final Color iconColor;
+              if (state.pressed) {
+                backgroundColor = Colors.red.shade700;
+                iconColor = Colors.white;
+              } else if (state.hovered) {
+                backgroundColor = Colors.red;
+                iconColor = Colors.white;
+              } else {
+                backgroundColor = Colors.transparent;
+                iconColor = Colors.black;
+              }
+              return Container(
+                width: buttonSize.width,
+                color: backgroundColor,
+                alignment: Alignment.center,
+                child: CloseIcon(color: iconColor),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -267,16 +226,6 @@ class _MultiWindowAppState extends State<MultiWindowApp> {
       delegate: MainControllerWindowDelegate(),
     );
     controller.enableCustomWindow();
-    if (controller is WindowControllerMacOS) {
-      (controller as WindowControllerMacOS).addDelegate(_WindowDelegateMacOS());
-    }
-    if (controller is WindowControllerWin32) {
-      (controller as WindowControllerWin32).addDelegate(_WindowDelegateWin32());
-      (controller as WindowControllerWin32).updateSize();
-    }
-    if (controller is WindowControllerLinux) {
-      (controller as WindowControllerLinux).addDelegate(_WindowDelegateLinux());
-    }
     super.initState();
   }
 
