@@ -53,7 +53,7 @@ enum WindowTrafficLightMode {
   removed,
 }
 
-/// Represents macOS traffic light buttons. Wherever this width is placed, the
+/// Represents macOS traffic light buttons. Wherever this widget is placed, the
 /// window traffic light buttons will be positioned.
 ///
 /// On other platform this renders as [SizedBox.shrink] and has no effect.
