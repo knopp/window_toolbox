@@ -8,8 +8,8 @@ import 'linux.g.dart';
 class CustomWindowLinux extends CustomWindow {
   CustomWindowLinux(this.controller) {
     cw_gtk_window_remove_decorations(
-      controller.getWindowHandle(),
-      controller.getFlutterViewHandle(),
+      controller.windowHandle,
+      controller.flutterViewHandle,
     );
     cw_init_event_hooks_if_needed();
   }
@@ -18,7 +18,7 @@ class CustomWindowLinux extends CustomWindow {
 
   @override
   void requestClose() {
-    _gtkWindowClose(controller.getWindowHandle());
+    _gtkWindowClose(controller.windowHandle);
   }
 
   @override
@@ -61,7 +61,7 @@ class CustomWindowLinux extends CustomWindow {
     double bottom,
     double right,
   ) {
-    final window = controller.getWindowHandle();
+    final window = controller.windowHandle;
     cw_window_set_shadow_width(
       window,
       top.round(),
@@ -73,7 +73,7 @@ class CustomWindowLinux extends CustomWindow {
 
   @override
   void startWindowMoveDrag(Offset globalPosition) {
-    final window = controller.getWindowHandle();
+    final window = controller.windowHandle;
     cw_window_begin_move_drag(
       window,
       globalPosition.dx.round(),
@@ -93,7 +93,7 @@ class CustomWindowLinux extends CustomWindow {
       WindowEdge.south => cw_window_edge_t.CW_WINDOW_EDGE_SOUTH,
       WindowEdge.southEast => cw_window_edge_t.CW_WINDOW_EDGE_SOUTH_EAST,
     };
-    final window = controller.getWindowHandle();
+    final window = controller.windowHandle;
     cw_window_begin_resize_drag(
       window,
       gtkEdge,

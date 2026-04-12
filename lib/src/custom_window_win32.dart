@@ -109,7 +109,7 @@ class CustomWindowWin32 extends CustomWindow implements WindowsMessageHandler {
 
   final WindowControllerWin32 controller;
 
-  HWND get _hwnd => HWND(controller.getWindowHandle());
+  HWND get _hwnd => HWND(controller.windowHandle);
 
   static final int Function(Pointer<Void>) _getDpiForWindow =
       DynamicLibrary.process().lookupFunction<

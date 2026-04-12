@@ -68,7 +68,7 @@ class _WindowControllerMacOSPrivate {
     initRequest.on_window_will_use_standard_frame =
         _windowWillUseStandardFrame.nativeFunction;
     cw_nswindow_init_delegate(
-      controller.getWindowHandle(),
+      controller.windowHandle,
       initRequest,
     );
   }

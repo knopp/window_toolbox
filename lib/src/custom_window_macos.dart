@@ -13,7 +13,7 @@ import 'package:ffi/ffi.dart' as ffi;
 
 class CustomWindowMacOS extends CustomWindow with WindowDelegateMacOS {
   CustomWindowMacOS(this.controller, {required this.onClose}) {
-    cw_nswindow_remove_titlebar(controller.getWindowHandle());
+    cw_nswindow_remove_titlebar(controller.windowHandle);
     controller.addDelegate(this);
   }
 
@@ -35,7 +35,7 @@ class CustomWindowMacOS extends CustomWindow with WindowDelegateMacOS {
   @override
   void setTrafficLightPosition(Offset offset) {
     cw_nswindow_update_traffic_light(
-      controller.getWindowHandle(),
+      controller.windowHandle,
       true,
       offset.dx,
       offset.dy,
@@ -48,7 +48,7 @@ class CustomWindowMacOS extends CustomWindow with WindowDelegateMacOS {
     _updateScheduled = false;
 
     if (_draggableRects.isEmpty) {
-      cw_nswindow_disable_draggable_areas(controller.getWindowHandle());
+      cw_nswindow_disable_draggable_areas(controller.windowHandle);
     } else {
       final view = _draggableRects.keys.first
           .findAncestorRenderObjectOfType<RenderView>();
@@ -69,7 +69,7 @@ class CustomWindowMacOS extends CustomWindow with WindowDelegateMacOS {
         rectsPointer[index].h = rect.height;
       }
       cw_nswindow_update_draggable_areas(
-        controller.getWindowHandle(),
+        controller.windowHandle,
         rectsPointer,
         count,
       );
@@ -112,7 +112,7 @@ class CustomWindowMacOS extends CustomWindow with WindowDelegateMacOS {
 
   @override
   void requestClose() {
-    cw_nswindow_request_close(controller.getWindowHandle());
+    cw_nswindow_request_close(controller.windowHandle);
   }
 
   @override

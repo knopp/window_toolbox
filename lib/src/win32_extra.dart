@@ -39,10 +39,10 @@ extension WindowControllerWin32Extension on WindowControllerWin32 {
   /// and needs to enforce new size.
   void updateSize() {
     final rect = ffi.malloc<RECT>();
-    GetWindowRect(HWND(getWindowHandle()), rect);
+    GetWindowRect(HWND(windowHandle), rect);
 
     SetWindowPos(
-      HWND(getWindowHandle()),
+      HWND(windowHandle),
       null,
       rect.ref.left,
       rect.ref.top,

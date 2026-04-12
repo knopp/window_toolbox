@@ -30,7 +30,7 @@ extension WindowControllerLinuxExtension on WindowControllerLinux {
 
   /// Returns current window state specific to Linux platform.
   WindowStateLinux getWindowStateLinux() {
-    final state = cw_window_get_state(getWindowHandle());
+    final state = cw_window_get_state(windowHandle);
     return WindowStateLinux._(state);
   }
 }
@@ -83,7 +83,7 @@ class _WindowControllerLinuxPrivate {
     initRequest.on_window_will_close = _windowWillClose.nativeFunction;
     initRequest.on_window_state_changed = _windowStateChanged.nativeFunction;
     cw_gtk_window_init_delegate(
-      controller.getWindowHandle(),
+      controller.windowHandle,
       initRequest,
     );
   }
