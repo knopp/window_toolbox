@@ -3,10 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:win32/win32.dart';
 
 import 'custom_window.dart';
+import 'win32_extra.dart';
 import 'package:flutter/src/widgets/_window_win32.dart' hide HWND;
-import 'package:flutter/src/widgets/_window_win32.dart'
-    as window_win32
-    show HWND;
 
 import 'dart:ffi' hide Size;
 
@@ -191,7 +189,7 @@ class CustomWindowWin32 extends CustomWindow {
   bool _trackingMouseLeave = false;
 
   int? handleWindowsMessage(
-    window_win32.HWND windowHandle,
+    HWND windowHandle,
     int message,
     int wParam,
     int lParam,
@@ -208,7 +206,7 @@ class CustomWindowWin32 extends CustomWindow {
         break;
       case WM_NCCALCSIZE:
         if (wParam == 1) {
-          final dpi = _getDpiForWindow(windowHandle);
+          final dpi = _getDpiForWindow(windowHandle.cast());
           int padding = GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi).value;
           int borderLR =
               GetSystemMetricsForDpi(SM_CXFRAME, dpi).value + padding;
@@ -232,7 +230,7 @@ class CustomWindowWin32 extends CustomWindow {
         final (xPos, yPos) = splitLParam(lParam);
         final (xClient, yClient) = screenToClient(_hwnd, xPos, yPos);
 
-        double scale = _getDpiForWindow(windowHandle) / 96.0;
+        double scale = _getDpiForWindow(windowHandle.cast()) / 96.0;
         double x = xClient / scale;
         double y = yClient / scale;
 

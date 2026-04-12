@@ -1,7 +1,4 @@
 import 'package:flutter/src/widgets/_window_win32.dart' hide HWND;
-import 'package:flutter/src/widgets/_window_win32.dart'
-    as window_win32
-    show HWND;
 import 'dart:ui' show Size;
 import 'dart:ffi' as ffi;
 
@@ -24,6 +21,21 @@ abstract mixin class WindowDelegateWin32 {
   }
 }
 
+/// A message handler that can respond to windows message sent to window
+/// of a specific window controller.
+///
+/// Returned value, if not null will be returned to the system as LRESULT
+/// and will stop all registered other handlers from being called. See
+/// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wndproc
+/// for more information.
+typedef WindowsMessageHandler =
+    int? Function(
+      HWND windowHandle,
+      int message,
+      int wParam,
+      int lParam,
+    );
+
 extension WindowControllerWin32Extension on WindowControllerWin32 {
   /// Register a Win32 specific delegate to this window controller.
   void addDelegate(WindowDelegateWin32 delegate) {
@@ -33,6 +45,20 @@ extension WindowControllerWin32Extension on WindowControllerWin32 {
   /// Unregister a previously registered delegate.
   void removeDelegate(WindowDelegateWin32 delegate) {
     _WindowControllerWin32Private.forController(this).removeDelegate(delegate);
+  }
+
+  /// Registers a [WindowsMessageHandler] to receive Windows messages for this window.
+  void addWindowsMessageHandler(WindowsMessageHandler handler) {
+    _WindowControllerWin32Private.forController(
+      this,
+    )._messageHandlers.add(handler);
+  }
+
+  /// Unregisters a [WindowsMessageHandler] from receiving Windows messages for this window.
+  void removeWindowsMessageHandler(WindowsMessageHandler handler) {
+    _WindowControllerWin32Private.forController(
+      this,
+    )._messageHandlers.remove(handler);
   }
 
   /// Updates the window size. This is useful when delegate implements [windowWillResizeToSize]
@@ -58,24 +84,66 @@ extension WindowControllerWin32Extension on WindowControllerWin32 {
 // Implementation details.
 //
 
+final _subclassState = <int, _WindowControllerWin32Private>{};
+
+int _subclassProc(
+  ffi.Pointer hwnd,
+  int msg,
+  int wparam,
+  int lparam,
+  int idSubclass,
+  int refData,
+) {
+  final state = _subclassState[hwnd.address];
+  final result = state?.handleWindowsMessage(
+    HWND(hwnd.cast()),
+    msg,
+    wparam,
+    lparam,
+  );
+  if (result != null) {
+    return result;
+  } else {
+    return DefSubclassProc(HWND(hwnd), msg, WPARAM(wparam), LPARAM(lparam));
+  }
+}
+
 class _WindowControllerWin32Private {
   _WindowControllerWin32Private._(this.controller) {
-    controller.addWindowsMessageHandler(handleWindowsMessage);
+    // controller.addWindowsMessageHandler(handleWindowsMessage);
+    final windowHandle = controller.windowHandle;
+    _subclassState[windowHandle.address] = this;
+    SetWindowSubclass(
+      HWND(windowHandle),
+      ffi.Pointer.fromFunction<SUBCLASSPROC>(_subclassProc, 0),
+      0,
+      0,
+    );
   }
+
+  final _messageHandlers = <WindowsMessageHandler>{};
 
   final WindowControllerWin32 controller;
 
   int? handleWindowsMessage(
-    window_win32.HWND windowHandle,
+    HWND windowHandle,
     int message,
     int wParam,
     int lParam,
   ) {
     if (message == WM_DESTROY) {
+      _subclassState.remove(windowHandle.address);
       for (final delegate in delegates) {
         delegate.windowWillClose();
       }
-    } else if (message == WM_WINDOWPOSCHANGING) {
+    }
+    for (final WindowsMessageHandler handler in _messageHandlers) {
+      final int? result = handler(windowHandle, message, wParam, lParam);
+      if (result != null) {
+        return result;
+      }
+    }
+    if (message == WM_WINDOWPOSCHANGING) {
       DefWindowProc(
         HWND(windowHandle),
         message,
