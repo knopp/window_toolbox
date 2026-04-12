@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:windowkit/windowkit.dart';
+import 'package:window_toolbox/window_toolbox.dart';
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/src/widgets/_window.dart';
 import 'package:flutter/src/widgets/_window_macos.dart';

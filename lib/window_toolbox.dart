@@ -2,7 +2,7 @@ export 'src/widgets.dart';
 export 'src/macos_extra.dart';
 export 'src/win32_extra.dart';
 
-import 'package:windowkit/src/widgets.dart';
+import 'package:window_toolbox/src/widgets.dart';
 
 import 'src/custom_window.dart';
 import 'package:flutter/src/widgets/_window.dart';

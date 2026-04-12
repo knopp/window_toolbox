@@ -1,6 +1,6 @@
-# windowkit_example
+# window_toolbox_example
 
-Demonstrates how to use the windowkit package.
+Demonstrates how to use the window_toolbox package.
 
 ## Getting Started
 

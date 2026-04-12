@@ -8,7 +8,11 @@
             "name": "example",
             "cwd": "example",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "toolArgs":[
+                "--local-engine=host_debug_unopt_arm64",
+                "--local-engine-host=host_debug_unopt_arm64",
+            ]
         },
         {
             "name": "example (profile mode)",

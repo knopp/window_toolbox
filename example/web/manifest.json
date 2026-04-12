@@ -1,11 +1,11 @@
 {
-    "name": "windowkit_example",
-    "short_name": "windowkit_example",
+    "name": "window_toolbox_example",
+    "short_name": "window_toolbox_example",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Demonstrates how to use the windowkit package.",
+    "description": "Demonstrates how to use the window_toolbox package.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

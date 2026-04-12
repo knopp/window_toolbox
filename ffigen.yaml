@@ -1,15 +1,15 @@
 # Run with `dart run ffigen --config ffigen.yaml`.
-name: WindowkitBindings
+name: WindowToolboxBindings
 description: |
-  Bindings for `src/windowkit.h`.
+  Bindings for `src/window_toolbox.h`.
 
   Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-output: 'lib/windowkit_bindings_generated.dart'
+output: 'lib/window_toolbox_bindings_generated.dart'
 headers:
   entry-points:
-    - 'src/windowkit.h'
+    - 'src/window_toolbox.h'
   include-directives:
-    - 'src/windowkit.h'
+    - 'src/window_toolbox.h'
 ffi-native:
 comments:
   style: any

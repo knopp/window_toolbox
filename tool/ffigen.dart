@@ -39,7 +39,7 @@ void main() {
     output: Output(
       dartFile: packageRoot.resolve('lib/src/$generatedFile'),
       format: true,
-      style: NativeExternalBindings(assetId: 'package:windowkit/$assetId'),
+      style: NativeExternalBindings(assetId: 'package:window_toolbox/$assetId'),
     ),
     headers: Headers(entryPoints: [packageRoot.resolve('src/$entryPoint')]),
     functions: Functions(include: filter),

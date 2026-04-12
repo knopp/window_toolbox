@@ -1,4 +1,4 @@
-# windowkit
+# window_toolbox
 
 A new Dart FFI package project.
 
@@ -30,17 +30,17 @@ Bundling is done by Flutter based on the output from `build.dart`.
 
 To use the native code, bindings in Dart are needed.
 To avoid writing these by hand, they are generated from the header file
-(`src/windowkit.h`) by `package:ffigen`.
+(`src/window_toolbox.h`) by `package:ffigen`.
 Regenerate the bindings by running `dart run ffigen --config ffigen.yaml`.
 
 ## Invoking native code
 
 Very short-running native functions can be directly invoked from any isolate.
-For example, see `sum` in `lib/windowkit.dart`.
+For example, see `sum` in `lib/window_toolbox.dart`.
 
 Longer-running functions should be invoked on a helper isolate to avoid
 dropping frames in Flutter applications.
-For example, see `sumAsync` in `lib/windowkit.dart`.
+For example, see `sumAsync` in `lib/window_toolbox.dart`.
 
 ## Flutter help
 
