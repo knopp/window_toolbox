@@ -1,5 +1,6 @@
 #include <flutter/dart_project.h>
 #include <flutter/flutter_view_controller.h>
+#include <flutter/generated_plugin_registrant.h>
 #include <windows.h>
 
 #include "utils.h"
@@ -22,6 +23,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
       GetCommandLineArguments();
 
   project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
+  auto const engine{std::make_shared<flutter::FlutterEngine>(project)};
   RegisterPlugins(engine.get());
   engine->Run();
 
