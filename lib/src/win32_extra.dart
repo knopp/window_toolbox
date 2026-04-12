@@ -58,14 +58,13 @@ extension WindowControllerWin32Extension on WindowControllerWin32 {
 // Implementation details.
 //
 
-class _WindowControllerWin32Private implements WindowsMessageHandler {
+class _WindowControllerWin32Private {
   _WindowControllerWin32Private._(this.controller) {
-    controller.addWindowsMessageHandler(this);
+    controller.addWindowsMessageHandler(handleWindowsMessage);
   }
 
   final WindowControllerWin32 controller;
 
-  @override
   int? handleWindowsMessage(
     window_win32.HWND windowHandle,
     int message,

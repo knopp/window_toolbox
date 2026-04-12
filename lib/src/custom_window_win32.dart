@@ -80,9 +80,9 @@ int _subclassProc(
   return DefSubclassProc(HWND(hwnd), msg, WPARAM(wparam), LPARAM(lparam));
 }
 
-class CustomWindowWin32 extends CustomWindow implements WindowsMessageHandler {
+class CustomWindowWin32 extends CustomWindow {
   CustomWindowWin32(this.controller, {required this.onClose}) {
-    controller.addWindowsMessageHandler(this);
+    controller.addWindowsMessageHandler(handleWindowsMessage);
     _makeWindowUndecorated(_hwnd);
     _flutterView = _findFlutterView();
     SetWindowSubclass(
@@ -190,7 +190,6 @@ class CustomWindowWin32 extends CustomWindow implements WindowsMessageHandler {
 
   bool _trackingMouseLeave = false;
 
-  @override
   int? handleWindowsMessage(
     window_win32.HWND windowHandle,
     int message,
