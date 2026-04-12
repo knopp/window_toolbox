@@ -81,7 +81,7 @@ int _subclassProc(
 }
 
 class CustomWindowWin32 extends CustomWindow implements WindowsMessageHandler {
-  CustomWindowWin32(this.controller) {
+  CustomWindowWin32(this.controller, {required this.onClose}) {
     controller.addWindowsMessageHandler(this);
     _makeWindowUndecorated(_hwnd);
     _flutterView = _findFlutterView();
@@ -92,6 +92,8 @@ class CustomWindowWin32 extends CustomWindow implements WindowsMessageHandler {
       0,
     );
   }
+
+  final VoidCallback onClose;
 
   late final HWND _flutterView;
 
@@ -196,6 +198,9 @@ class CustomWindowWin32 extends CustomWindow implements WindowsMessageHandler {
     int lParam,
   ) {
     switch (message) {
+      case WM_DESTROY:
+        onClose();
+        break;
       case WM_ERASEBKGND:
         return 0;
       case WM_SIZE:

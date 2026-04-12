@@ -37,7 +37,10 @@ abstract class CustomWindow {
         onClose: onClose,
       );
     } else if (controller is WindowControllerWin32) {
-      return CustomWindowWin32(controller as WindowControllerWin32);
+      return CustomWindowWin32(
+        controller as WindowControllerWin32,
+        onClose: onClose,
+      );
     } else if (controller is WindowControllerLinux) {
       return CustomWindowLinux(controller as WindowControllerLinux);
     } else {

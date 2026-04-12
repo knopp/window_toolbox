@@ -11,6 +11,10 @@ import 'macos.g.dart';
 /// The delegate can be added to window controller using
 /// [WindowControllerMacOSExtension.addDelegate] method.
 abstract mixin class WindowDelegateMacOS {
+  /// Called right before the window is closed. This is the best place to add
+  /// any platform specific cleanup code.
+  void windowWillClose() {}
+
   /// Called during window resizing. Implementation can override target size
   /// to enforce specific aspect ratio or other constraints.
   Size? windowWillResizeToSize(Size newSize) {
@@ -22,10 +26,6 @@ abstract mixin class WindowDelegateMacOS {
   Rect? windowWillUseStandardFrame(Rect defaultFrame) {
     return null;
   }
-
-  /// Called right before the window is closed. This is the best place to add
-  /// any platform specific cleanup code.
-  void windowWillClose() {}
 
   void windowWillEnterFullScreen() {}
 
@@ -188,16 +188,18 @@ class _WindowControllerMacOSPrivate {
   }
 
   void addDelegate(WindowDelegateMacOS delegate) {
-    if (!delegates.contains(delegate)) {
-      delegates.add(delegate);
+    if (!_delegates.contains(delegate)) {
+      _delegates.add(delegate);
     }
   }
 
   void removeDelegate(WindowDelegateMacOS delegate) {
-    delegates.remove(delegate);
+    _delegates.remove(delegate);
   }
 
-  final List<WindowDelegateMacOS> delegates = [];
+  List<WindowDelegateMacOS> get delegates => List.of(_delegates);
+
+  final List<WindowDelegateMacOS> _delegates = [];
 
   final WindowControllerMacOS controller;
 

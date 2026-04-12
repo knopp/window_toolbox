@@ -13,6 +13,7 @@ import 'package:windowkit/windowkit.dart';
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/src/widgets/_window.dart';
 import 'package:flutter/src/widgets/_window_macos.dart';
+import 'package:flutter/src/widgets/_window_win32.dart';
 
 class MainControllerWindowDelegate with RegularWindowControllerDelegate {
   @override
@@ -230,6 +231,18 @@ class _WindowDelegateMacOS extends WindowDelegateMacOS {
   }
 }
 
+class _WindowDelegateWin32 extends WindowDelegateWin32 {
+  @override
+  void windowWillClose() {
+    print('Window will close for sure1');
+  }
+
+  @override
+  Size? windowWillResizeToSize(Size newSize) {
+    return Size(newSize.width, newSize.width / 2);
+  }
+}
+
 class _MultiWindowAppState extends State<MultiWindowApp> {
   late final RegularWindowController controller;
 
@@ -243,6 +256,10 @@ class _MultiWindowAppState extends State<MultiWindowApp> {
     controller.enableCustomWindow();
     if (controller is WindowControllerMacOS) {
       (controller as WindowControllerMacOS).addDelegate(_WindowDelegateMacOS());
+    }
+    if (controller is WindowControllerWin32) {
+      (controller as WindowControllerWin32).addDelegate(_WindowDelegateWin32());
+      (controller as WindowControllerWin32).updateSize();
     }
     super.initState();
   }
