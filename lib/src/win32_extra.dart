@@ -110,7 +110,6 @@ int _subclassProc(
 
 class _WindowControllerWin32Private {
   _WindowControllerWin32Private._(this.controller) {
-    // controller.addWindowsMessageHandler(handleWindowsMessage);
     final windowHandle = controller.windowHandle;
     _subclassState[windowHandle.address] = this;
     SetWindowSubclass(
