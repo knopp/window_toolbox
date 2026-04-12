@@ -503,7 +503,7 @@ class _WindowBorderState extends State<WindowBorder> with WindowDelegateLinux {
     }
     double effectiveCornerRadius = widget.cornerRadius;
     if (_controller != null) {
-      final state = _controller!.getWindowStateLinux();
+      final state = _controller!.getWindowState();
       if (state.maximized ||
           state.fullscreen ||
           state.topTiled ||

@@ -29,7 +29,7 @@ extension WindowControllerLinuxExtension on WindowControllerLinux {
   }
 
   /// Returns current window state specific to Linux platform.
-  WindowStateLinux getWindowStateLinux() {
+  WindowStateLinux getWindowState() {
     final state = cw_window_get_state(windowHandle);
     return WindowStateLinux._(state);
   }
