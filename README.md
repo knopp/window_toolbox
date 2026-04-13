@@ -1,49 +1,42 @@
 # window_toolbox
 
-A new Dart FFI package project.
+`window_toolbox` is a Flutter package for building custom window chrome compatible with Flutter's multi-window API. Special care has been taken to ensure that expected platform behavior, such [snap layout](https://support.microsoft.com/en-us/windows/snap-your-windows-885a9b1e-a983-a3b1-16cd-c531795e6241) on Windows, is preserved, while still allowing for a high degree of customization.
 
-## Getting Started
+In addition to custom window chrome, this package also provides extension classes on top of native window controllers, exposing more native window functionality and allowing to react to subset of `NSWindowDelegate` methods or handing `win32` messages directly in Dart.
 
-This project is a starting point for a Flutter
-[FFI package](https://flutter.dev/to/ffi-package),
-a specialized package that includes native code directly invoked with Dart FFI.
+<img src="media/screenshot_linux.jpg" width="661">
 
-## Project structure
+## Custom window chrome
 
-This template uses the following structure:
+To customize window, it is necessary first to start with disabling existing window decorations:
 
-* `src`: Contains the native source code, and a CmakeFile.txt file for building
-  that source code into a dynamic library.
+```dart
+controller = RegularWindowController(...);
+controller.enableCustomWindow();
+```
 
-* `lib`: Contains the Dart code that defines the API of the plugin, and which
-  calls into the native code using `dart:ffi`.
+Once that is done, you can place various widgets in your widget tree to build draggable areas, traffic light buttons (macOS) or window buttons:
 
-* `bin`: Contains the `build.dart` that performs the external native builds.
+- `WindowDragArea` - Widget that creates area that can be used to drag the window.
+- `WindowDragExcludeArea` - Marks places inside `WindowDragArea` that should not be draggable. This is useful for buttons in title bar, tabs, or other controls that should not participate in window dragging.
+- `WindowTrafficLight` - a "proxy" widget for macOS traffic light. Wherever this widget is placed, the actual macOS traffic light buttons will be positioned. This widget can also be used to hide the traffic light buttons completely.
+- `MaximizeButton`, `MinimizeButton`, `CloseButton` - Widgets representing standard window buttons. These accept custom builders so the presentation is fully customizable, while ensuring the proper behavior on each platform. On Windows the `MaximizeButton` properly supports the [snap layout](https://support.microsoft.com/en-us/windows/snap-your-windows-885a9b1e-a983-a3b1-16cd-c531795e6241) popup.
+- `WindowBorder` - On Linux draws shadows, border and clips the content to round corners (if specified). On other platforms this widget has no effect, since shadows, borders and clipping are handled by the system compositor.
 
-## Building and bundling native code
+A complete example of fully customized window can be found in the [example](example) directory.
 
-`build.dart` does the building of native components.
+<img src="media/snap_layout.jpg" width="344">
 
-Bundling is done by Flutter based on the output from `build.dart`.
+## Additional window functionality
 
-## Binding to native code
+On top of custom window chrome, `window_toolbox` also provides some additional platform specific functionality related to native windows.
 
-To use the native code, bindings in Dart are needed.
-To avoid writing these by hand, they are generated from the header file
-(`src/window_toolbox.h`) by `package:ffigen`.
-Regenerate the bindings by running `dart run ffigen --config ffigen.yaml`.
+This includes:
 
-## Invoking native code
+- Exposing more of `NSWindow` API and ability to register custom delegate for macOS windows. See [WindowDelegateMacOS](lib/src/macos_extra.dart) for more details.
 
-Very short-running native functions can be directly invoked from any isolate.
-For example, see `sum` in `lib/window_toolbox.dart`.
+- Ability to register custom delegate and message handlers on Windows. See [Win32MessageHandler](lib/src/win32_extra.dart) for more details.
 
-Longer-running functions should be invoked on a helper isolate to avoid
-dropping frames in Flutter applications.
-For example, see `sumAsync` in `lib/window_toolbox.dart`.
+- Ability to register custom delegate on linux. See [WindowDelegateLinux](lib/src/linux_extra.dart) for more details.
 
-## Flutter help
-
-For help getting started with Flutter, view our
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The  windowing API surface is very big and exposing more of the platform specific functionality is planned, requests and contributions are welcome.

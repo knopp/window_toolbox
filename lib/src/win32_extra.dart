@@ -28,7 +28,7 @@ abstract mixin class WindowDelegateWin32 {
 /// and will stop all registered other handlers from being called. See
 /// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wndproc
 /// for more information.
-typedef WindowsMessageHandler =
+typedef Win32MessageHandler =
     int? Function(
       HWND windowHandle,
       int message,
@@ -47,15 +47,15 @@ extension WindowControllerWin32Extension on WindowControllerWin32 {
     _WindowControllerWin32Private.forController(this).removeDelegate(delegate);
   }
 
-  /// Registers a [WindowsMessageHandler] to receive Windows messages for this window.
-  void addWindowsMessageHandler(WindowsMessageHandler handler) {
+  /// Registers a [Win32MessageHandler] to receive Windows messages for this window.
+  void addWindowsMessageHandler(Win32MessageHandler handler) {
     _WindowControllerWin32Private.forController(
       this,
     )._messageHandlers.add(handler);
   }
 
-  /// Unregisters a [WindowsMessageHandler] from receiving Windows messages for this window.
-  void removeWindowsMessageHandler(WindowsMessageHandler handler) {
+  /// Unregisters a [Win32MessageHandler] from receiving Windows messages for this window.
+  void removeWindowsMessageHandler(Win32MessageHandler handler) {
     _WindowControllerWin32Private.forController(
       this,
     )._messageHandlers.remove(handler);
@@ -120,7 +120,7 @@ class _WindowControllerWin32Private {
     );
   }
 
-  final _messageHandlers = <WindowsMessageHandler>{};
+  final _messageHandlers = <Win32MessageHandler>{};
 
   final WindowControllerWin32 controller;
 
@@ -136,7 +136,7 @@ class _WindowControllerWin32Private {
         delegate.windowWillClose();
       }
     }
-    for (final WindowsMessageHandler handler in _messageHandlers) {
+    for (final Win32MessageHandler handler in _messageHandlers) {
       final int? result = handler(windowHandle, message, wParam, lParam);
       if (result != null) {
         return result;
