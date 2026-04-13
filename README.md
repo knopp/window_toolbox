@@ -23,7 +23,7 @@ Once that is done, you can place various widgets in your widget tree to build dr
 - `MaximizeButton`, `MinimizeButton`, `CloseButton` - Widgets representing standard window buttons. These accept custom builders so the presentation is fully customizable, while ensuring the proper behavior on each platform. On Windows the `MaximizeButton` properly supports the [snap layout](https://support.microsoft.com/en-us/windows/snap-your-windows-885a9b1e-a983-a3b1-16cd-c531795e6241) popup.
 - `WindowBorder` - On Linux draws shadows, border and clips the content to round corners (if specified). On other platforms this widget has no effect, since shadows, borders and clipping are handled by the system compositor.
 
-A complete example of fully customized window can be found in the [example](example) directory.
+A [complete example](example/lib/main.dart) of fully customized window can be found in the [example](example) directory.
 
 <img src="media/snap_layout.jpg" width="344">
 
