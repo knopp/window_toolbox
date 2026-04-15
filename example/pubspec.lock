@@ -223,10 +223,10 @@ packages:
     dependency: transitive
     description:
       name: native_toolchain_ninja
-      sha256: f871f4e5561101c754ead85a8d1436f8c5816403e500972cbb03243b9e0704f1
+      sha256: "3d22b36191c6a1df9d8a7678fde395bd299e5bf2674ce9460ccb719d748228e5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.2"
   path:
     dependency: transitive
     description:
