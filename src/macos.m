@@ -47,34 +47,44 @@ static size_t associate_object_key;
 
 - (void)__windowWillEnterFullScreen:(NSNotification *)notification {
   CWDelegateState *state = [CWDelegateState stateForObject:self];
-  state->_config.on_window_will_enter_fullscreen();
+  if (state) {
+    state->_config.on_window_will_enter_fullscreen();
+  }
   [self __windowWillEnterFullScreen:notification];
 }
 
 - (void)__windowDidEnterFullScreen:(NSNotification *)notification {
   CWDelegateState *state = [CWDelegateState stateForObject:self];
-  state->_config.on_window_did_enter_fullscreen();
+  if (state) {
+    state->_config.on_window_did_enter_fullscreen();
+  }
   [self __windowDidEnterFullScreen:notification];
 }
 
 - (void)__windowWillExitFullScreen:(NSNotification *)notification {
   CWDelegateState *state = [CWDelegateState stateForObject:self];
-  state->_config.on_window_will_exit_fullscreen();
+  if (state) {
+    state->_config.on_window_will_exit_fullscreen();
+  }
   [self __windowWillExitFullScreen:notification];
 }
 
 - (void)__windowDidExitFullScreen:(NSNotification *)notification {
   CWDelegateState *state = [CWDelegateState stateForObject:self];
-  state->_config.on_window_did_exit_fullscreen();
+  if (state) {
+    state->_config.on_window_did_exit_fullscreen();
+  }
   [self __windowDidExitFullScreen:notification];
 }
 
 - (NSSize)__windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize {
   CWDelegateState *state = [CWDelegateState stateForObject:self];
-  cw_size_t new_size = {frameSize.width, frameSize.height};
-  cw_size_t size = state->_config.on_window_will_resize(new_size);
-  if (size.w >= 0 && size.h >= 0) {
-    return NSMakeSize(size.w, size.h);
+  if (state) {
+    cw_size_t new_size = {frameSize.width, frameSize.height};
+    cw_size_t size = state->_config.on_window_will_resize(new_size);
+    if (size.w >= 0 && size.h >= 0) {
+      return NSMakeSize(size.w, size.h);
+    }
   }
   return [self __windowWillResize:sender toSize:frameSize];
 }
@@ -82,18 +92,23 @@ static size_t associate_object_key;
 // This depends on particular method that's not part of window delegate :-/
 - (void)__windowWillClose {
   CWDelegateState *state = [CWDelegateState stateForObject:self];
-  state->_config.on_window_will_close();
+  if (state) {
+    state->_config.on_window_will_close();
+  }
   [self __windowWillClose];
 }
 
 - (NSRect)__windowWillUseStandardFrame:(NSWindow *)window
                           defaultFrame:(NSRect)newFrame {
   CWDelegateState *state = [CWDelegateState stateForObject:self];
-  cw_rect_t new_frame = {newFrame.origin.x, newFrame.origin.y,
-                         newFrame.size.width, newFrame.size.height};
-  cw_rect_t frame = state->_config.on_window_will_use_standard_frame(new_frame);
-  if (frame.w >= 0 && frame.h >= 0) {
-    return NSMakeRect(frame.x, frame.y, frame.w, frame.h);
+  if (state) {
+    cw_rect_t new_frame = {newFrame.origin.x, newFrame.origin.y,
+                           newFrame.size.width, newFrame.size.height};
+    cw_rect_t frame =
+        state->_config.on_window_will_use_standard_frame(new_frame);
+    if (frame.w >= 0 && frame.h >= 0) {
+      return NSMakeRect(frame.x, frame.y, frame.w, frame.h);
+    }
   }
   return [self __windowWillUseStandardFrame:window defaultFrame:newFrame];
 }
