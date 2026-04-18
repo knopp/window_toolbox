@@ -39,4 +39,19 @@ This includes:
 
 - Ability to register custom delegate on linux. See [WindowDelegateLinux](lib/src/linux_extra.dart) for more details.
 
+#### Example: Setting [NSWindowCollectionBehavior](https://developer.apple.com/documentation/appkit/nswindow/collectionbehavior-swift.struct) on macOS
+
+```dart
+final controller = RegularWindowController(...);
+if (controller is WindowControllerMacOS) {
+  final controllerMacOS = controller as WindowControllerMacOS;
+  // Add fullScreenNone to existing collection behavior to disable
+  // full screen mode for this window.
+  controllerMacOS.collectionBehavior = {
+    ...controllerMacOS.collectionBehavior,
+    NSWindowCollectionBehavior.fullScreenNone,
+  };
+}
+```
+
 The  windowing API surface is very big and exposing more of the platform specific functionality is planned, requests and contributions are welcome.

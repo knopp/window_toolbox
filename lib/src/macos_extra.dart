@@ -1,4 +1,5 @@
 import 'package:flutter/src/widgets/_window_macos.dart';
+import 'package:flutter/src/widgets/_window.dart';
 import 'dart:ui' show Size, Rect;
 
 import 'dart:ffi' as ffi;
@@ -46,11 +47,110 @@ extension WindowControllerMacOSExtension on WindowControllerMacOS {
   void removeDelegate(WindowDelegateMacOS delegate) {
     _WindowControllerMacOSPrivate.forController(this).removeDelegate(delegate);
   }
+
+  /// Controls whether the window can be minimized. This disables or enables the
+  /// window minimize button in the traffic light.
+  set canMinimize(bool value) {
+    int styleMask = cw_nswindow_get_style_mask(windowHandle);
+    if (value) {
+      styleMask |= _nsWindowStyleMaskMiniaturizable;
+    } else {
+      styleMask &= ~_nsWindowStyleMaskMiniaturizable;
+    }
+    cw_nswindow_set_style_mask(windowHandle, styleMask);
+  }
+
+  /// Returns whether the window can be minimized.
+  bool get canMinimize {
+    int styleMask = cw_nswindow_get_style_mask(windowHandle);
+    return (styleMask & _nsWindowStyleMaskMiniaturizable) != 0;
+  }
+
+  /// Controls whether the window can be closed. This disables or enables the
+  /// window close button in the traffic light.
+  ///
+  /// Note that even if [canClose] is set to `true`, window closing can be still
+  /// prevented from [RegularWindowControllerDelegate.onWindowCloseRequested] method.
+  set canClose(bool value) {
+    int styleMask = cw_nswindow_get_style_mask(windowHandle);
+    if (value) {
+      styleMask |= _nsWindowStyleMaskClosable;
+    } else {
+      styleMask &= ~_nsWindowStyleMaskClosable;
+    }
+    cw_nswindow_set_style_mask(windowHandle, styleMask);
+  }
+
+  /// Returns whether the window close button is enabled.
+  bool get canClose {
+    int styleMask = cw_nswindow_get_style_mask(windowHandle);
+    return (styleMask & _nsWindowStyleMaskClosable) != 0;
+  }
+
+  /// Sets the NSWindow collection behavior:
+  /// https://developer.apple.com/documentation/appkit/nswindow/collectionbehavior-swift.struct?language=objc
+  set collectionBehavior(Set<NSWindowCollectionBehavior> value) {
+    cw_nswindow_set_collection_behavior(
+      windowHandle,
+      _parseCollectionBehaviorSet(value),
+    );
+  }
+
+  /// Returns the current NSWindow collection behavior.
+  /// https://developer.apple.com/documentation/appkit/nswindow/collectionbehavior-swift.struct?language=objc
+  Set<NSWindowCollectionBehavior> get collectionBehavior {
+    return _parseCollectionBehavior(
+      cw_nswindow_get_collection_behavior(windowHandle),
+    );
+  }
+}
+
+enum NSWindowCollectionBehavior {
+  defaultBehavior._(0),
+  canJoinAllSpaces._(1 << 0),
+  moveToActiveSpace._(1 << 1),
+  managed._(1 << 2),
+  transient._(1 << 3),
+  stationary._(1 << 4),
+  participatesInCycle._(1 << 5),
+  ignoresCycle._(1 << 6),
+  fullScreenPrimary._(1 << 7),
+  fullScreenAuxiliary._(1 << 8),
+  fullScreenNone._(1 << 9),
+  fullScreenAllowsTiling._(1 << 11),
+  fullScreenDisallowsTiling._(1 << 12),
+  primary._(1 << 16),
+  auxiliary._(1 << 17),
+  canJoinAllApplications._(1 << 18);
+
+  const NSWindowCollectionBehavior._(this._value);
+  final int _value;
 }
 
 //
 // Implementation details.
 //
+
+Set<NSWindowCollectionBehavior> _parseCollectionBehavior(int value) {
+  final result = <NSWindowCollectionBehavior>{};
+  for (final behavior in NSWindowCollectionBehavior.values) {
+    if ((value & behavior._value) != 0) {
+      result.add(behavior);
+    }
+  }
+  return result;
+}
+
+int _parseCollectionBehaviorSet(Set<NSWindowCollectionBehavior> behaviors) {
+  int result = 0;
+  for (final behavior in behaviors) {
+    result |= behavior._value;
+  }
+  return result;
+}
+
+const _nsWindowStyleMaskClosable = 1 << 1;
+const _nsWindowStyleMaskMiniaturizable = 1 << 2;
 
 class _WindowControllerMacOSPrivate {
   _WindowControllerMacOSPrivate._(this.controller) {

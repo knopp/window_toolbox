@@ -36,6 +36,17 @@ EXPORT cw_size_t cw_nswindow_traffic_light_size(void *ns_window);
 
 EXPORT void cw_nswindow_request_close(void *ns_window);
 
+EXPORT void cw_nswindow_set_style_mask(void *ns_window,
+                                       unsigned long style_mask);
+
+EXPORT unsigned long cw_nswindow_get_style_mask(void *ns_window);
+
+EXPORT void
+cw_nswindow_set_collection_behavior(void *ns_window,
+                                    unsigned long collection_behavior);
+
+EXPORT unsigned long cw_nswindow_get_collection_behavior(void *ns_window);
+
 typedef struct {
   cw_size_t (*on_window_will_resize)(cw_size_t new_size);
   void (*on_window_will_close)();

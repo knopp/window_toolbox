@@ -306,6 +306,27 @@ void cw_nswindow_request_close(void *ns_window) {
   [window performClose:nil];
 }
 
+void cw_nswindow_set_style_mask(void *ns_window, unsigned long style_mask) {
+  NSWindow *window = (__bridge NSWindow *)ns_window;
+  window.styleMask = style_mask;
+}
+
+unsigned long cw_nswindow_get_style_mask(void *ns_window) {
+  NSWindow *window = (__bridge NSWindow *)ns_window;
+  return window.styleMask;
+}
+
+void cw_nswindow_set_collection_behavior(void *ns_window,
+                                         unsigned long collection_behavior) {
+  NSWindow *window = (__bridge NSWindow *)ns_window;
+  window.collectionBehavior = collection_behavior;
+}
+
+unsigned long cw_nswindow_get_collection_behavior(void *ns_window) {
+  NSWindow *window = (__bridge NSWindow *)ns_window;
+  return window.collectionBehavior;
+}
+
 void cw_nswindow_update_traffic_light(void *ns_window, bool enabled, double x,
                                       double y) {
   NSWindow *window = (__bridge NSWindow *)ns_window;

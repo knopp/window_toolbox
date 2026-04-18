@@ -46,6 +46,28 @@ external void cw_nswindow_request_close(
   ffi.Pointer<ffi.Void> ns_window,
 );
 
+@ffi.Native<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.UnsignedLong)>()
+external void cw_nswindow_set_style_mask(
+  ffi.Pointer<ffi.Void> ns_window,
+  int style_mask,
+);
+
+@ffi.Native<ffi.UnsignedLong Function(ffi.Pointer<ffi.Void>)>()
+external int cw_nswindow_get_style_mask(
+  ffi.Pointer<ffi.Void> ns_window,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.UnsignedLong)>()
+external void cw_nswindow_set_collection_behavior(
+  ffi.Pointer<ffi.Void> ns_window,
+  int collection_behavior,
+);
+
+@ffi.Native<ffi.UnsignedLong Function(ffi.Pointer<ffi.Void>)>()
+external int cw_nswindow_get_collection_behavior(
+  ffi.Pointer<ffi.Void> ns_window,
+);
+
 @ffi.Native<ffi.Void Function(ffi.Pointer<ffi.Void>, cw_delegate_config_t)>()
 external void cw_nswindow_init_delegate(
   ffi.Pointer<ffi.Void> ns_window,
