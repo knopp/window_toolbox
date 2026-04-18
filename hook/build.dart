@@ -32,7 +32,10 @@ void main(List<String> args) async {
       ninjaBuilder = NinjaBuilder.library(
         name: packageName,
         assetName: 'macos',
-        sources: ['src/macos.m'],
+        sources: [
+          'src/macos.m',
+          'src/window_buttons_proxy.m',
+        ],
         language: Language.objectiveC,
         frameworks: ['AppKit'],
         flags: [

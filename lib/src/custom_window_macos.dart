@@ -28,8 +28,8 @@ class CustomWindowMacOS extends CustomWindow with WindowDelegateMacOS {
 
   @override
   Size getTrafficLightSize() {
-    // TODO(knopp): This will be different on macOS 26.
-    return const Size(54, 16);
+    final size = cw_nswindow_traffic_light_size(controller.windowHandle);
+    return Size(size.w, size.h);
   }
 
   @override

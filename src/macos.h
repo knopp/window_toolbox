@@ -32,6 +32,8 @@ EXPORT void cw_nswindow_disable_draggable_areas(void *ns_window);
 EXPORT void cw_nswindow_update_traffic_light(void *ns_window, bool enabled,
                                              double x, double y);
 
+EXPORT cw_size_t cw_nswindow_traffic_light_size(void *ns_window);
+
 EXPORT void cw_nswindow_request_close(void *ns_window);
 
 typedef struct {

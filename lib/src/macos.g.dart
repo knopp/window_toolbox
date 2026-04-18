@@ -36,6 +36,11 @@ external void cw_nswindow_update_traffic_light(
   double y,
 );
 
+@ffi.Native<cw_size_t Function(ffi.Pointer<ffi.Void>)>()
+external cw_size_t cw_nswindow_traffic_light_size(
+  ffi.Pointer<ffi.Void> ns_window,
+);
+
 @ffi.Native<ffi.Void Function(ffi.Pointer<ffi.Void>)>()
 external void cw_nswindow_request_close(
   ffi.Pointer<ffi.Void> ns_window,
