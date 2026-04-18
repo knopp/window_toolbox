@@ -78,6 +78,42 @@ extension WindowControllerWin32Extension on WindowControllerWin32 {
     );
     ffi.malloc.free(rect);
   }
+
+  /// Controls whether the window can be minimized. This disables or enables the
+  /// window minimize button in the title bar.
+  set canMinimize(bool value) {
+    int style = GetWindowLongPtr(HWND(windowHandle), GWL_STYLE).value;
+    if (value) {
+      style |= WS_MINIMIZEBOX;
+    } else {
+      style &= ~WS_MINIMIZEBOX;
+    }
+    SetWindowLongPtr(HWND(windowHandle), GWL_STYLE, style);
+  }
+
+  /// Returns whether the window can be minimized.
+  bool get canMinimize {
+    int style = GetWindowLongPtr(HWND(windowHandle), GWL_STYLE).value;
+    return (style & WS_MINIMIZEBOX) != 0;
+  }
+
+  /// Controls whether the window can be maximized. This disables or enables the
+  /// window maximize button in the title bar.
+  set canMaximize(bool value) {
+    int style = GetWindowLongPtr(HWND(windowHandle), GWL_STYLE).value;
+    if (value) {
+      style |= WS_MAXIMIZEBOX;
+    } else {
+      style &= ~WS_MAXIMIZEBOX;
+    }
+    SetWindowLongPtr(HWND(windowHandle), GWL_STYLE, style);
+  }
+
+  /// Returns whether the window can be maximized.
+  bool get canMaximize {
+    int style = GetWindowLongPtr(HWND(windowHandle), GWL_STYLE).value;
+    return (style & WS_MAXIMIZEBOX) != 0;
+  }
 }
 
 //

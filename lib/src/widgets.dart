@@ -5,9 +5,11 @@ import 'package:flutter/widgets.dart';
 import 'package:headless_widgets/headless_widgets.dart';
 import 'custom_window.dart';
 import 'linux_extra.dart';
+import 'win32_extra.dart';
 
 import 'package:flutter/src/widgets/_window.dart';
 import 'package:flutter/src/widgets/_window_linux.dart';
+import 'package:flutter/src/widgets/_window_win32.dart';
 
 /// Represents an area in Window that can be used to drag the window. This is
 /// typically used to implement custom title bars.
@@ -210,6 +212,11 @@ class _CloseButtonState extends State<CloseButton> {
 class _MinimizeButtonState extends State<MinimizeButton> {
   @override
   Widget build(BuildContext context) {
+    bool enabled = widget.enabled;
+    final controller = WindowScope.of(context);
+    if (controller is WindowControllerWin32) {
+      enabled &= (controller as WindowControllerWin32).canMinimize;
+    }
     return WindowDragExcludeArea(
       child: Button(
         builder: (context, buttonState, child) {
@@ -223,7 +230,7 @@ class _MinimizeButtonState extends State<MinimizeButton> {
           );
         },
         focusNode: _buttonNode,
-        onPressed: widget.enabled ? _onPressed : null,
+        onPressed: enabled ? _onPressed : null,
       ),
     );
   }
@@ -256,6 +263,11 @@ class _MinimizeButtonState extends State<MinimizeButton> {
 class _MaximizeButtonState extends _FrameReportingState<MaximizeButton> {
   @override
   Widget build(BuildContext context) {
+    bool enabled = widget.enabled;
+    final controller = WindowScope.of(context);
+    if (controller is WindowControllerWin32) {
+      enabled &= (controller as WindowControllerWin32).canMaximize;
+    }
     return WindowDragExcludeArea(
       child: Button(
         builder: (context, buttonState, child) {
@@ -270,7 +282,7 @@ class _MaximizeButtonState extends _FrameReportingState<MaximizeButton> {
           );
         },
         focusNode: _buttonNode,
-        onPressed: widget.enabled ? _onPressed : null,
+        onPressed: enabled ? _onPressed : null,
       ),
     );
   }
@@ -389,16 +401,22 @@ class _WindowDragAreaState extends _FrameReportingState<WindowDragArea> {
     final controller = WindowScope.of(context);
     if (customWindow?.titlebarNeedsDoubleClickDetector() == true &&
         controller is RegularWindowController) {
-      gestures[_DoubleTapToMaximizeGestureRecognizer] =
-          GestureRecognizerFactoryWithHandlers<
-            _DoubleTapToMaximizeGestureRecognizer
-          >(() => _DoubleTapToMaximizeGestureRecognizer(debugOwner: this), (
-            _DoubleTapToMaximizeGestureRecognizer instance,
-          ) {
-            instance.onDoubleTap = () {
-              controller.setMaximized(!controller.isMaximized);
-            };
-          });
+      bool canMaximize = true;
+      if (controller is WindowControllerWin32) {
+        canMaximize &= (controller as WindowControllerWin32).canMaximize;
+      }
+      if (canMaximize) {
+        gestures[_DoubleTapToMaximizeGestureRecognizer] =
+            GestureRecognizerFactoryWithHandlers<
+              _DoubleTapToMaximizeGestureRecognizer
+            >(() => _DoubleTapToMaximizeGestureRecognizer(debugOwner: this), (
+              _DoubleTapToMaximizeGestureRecognizer instance,
+            ) {
+              instance.onDoubleTap = () {
+                controller.setMaximized(!controller.isMaximized);
+              };
+            });
+      }
     }
     if (gestures.isNotEmpty) {
       return RawGestureDetector(
