@@ -1,7 +1,7 @@
-// Very roughly based on Electron, simplified, cleaned up and fixed up
-// a fullscreen button glitch.
+// Originally based on Electron, simplified, cleaned up and extended.
 
 // Copyright (c) 2021 Microsoft, Inc.
+// Copyright (c) 2026 Matej Knopp.
 // Use of this source code is governed by the MIT license that can be
 // found in the LICENSE file.
 
@@ -135,17 +135,8 @@ static bool IsRTL() {
 @end
 
 @interface NSView (NSThemeFrame)
-
 - (void)_updateMouseTracking;
-
 @end
-
-void _updateArea(NSView *view) {
-  [view updateTrackingAreas];
-  for (NSView *v in view.subviews) {
-    _updateArea(v);
-  }
-}
 
 @implementation CWWindowButtonsProxyInactiveConfiguration
 
@@ -246,7 +237,8 @@ void _updateArea(NSView *view) {
   [CATransaction begin];
   [CATransaction setDisableActions:YES];
 
-  if (_inactiveConfiguration == nil) {
+  if (_window.styleMask & NSWindowStyleMaskFullScreen ||
+      _inactiveConfiguration == nil) {
     left.superview.alphaValue = 1;
     _inactiveView.left.opacity = 0;
     _inactiveView.middle.opacity = 0;
