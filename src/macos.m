@@ -196,7 +196,7 @@ static void initSwizzleIfNeeded() {
 
 @interface CWWindowDraggingView : NSView {
   NSMutableArray<CWWindowDragPreventer *> *_dragExclusion;
-  WindowButtonsProxy *trafficLight;
+  CWWindowButtonsProxy *trafficLight;
 }
 
 @end
@@ -222,9 +222,9 @@ static void initSwizzleIfNeeded() {
   return window.contentView;
 }
 
-- (WindowButtonsProxy *)trafficLight {
+- (CWWindowButtonsProxy *)trafficLight {
   if (trafficLight == nil) {
-    trafficLight = [[WindowButtonsProxy alloc] initWithWindow:self.window];
+    trafficLight = [[CWWindowButtonsProxy alloc] initWithContainer:self];
   }
   return trafficLight;
 }
@@ -327,22 +327,48 @@ unsigned long cw_nswindow_get_collection_behavior(void *ns_window) {
   return window.collectionBehavior;
 }
 
-void cw_nswindow_update_traffic_light(void *ns_window, bool enabled, double x,
-                                      double y) {
+static NSColor *colorFromARGB(int64_t color) {
+  CGFloat a = ((color >> 24) & 0xFF) / 255.0;
+  CGFloat r = ((color >> 16) & 0xFF) / 255.0;
+  CGFloat g = ((color >> 8) & 0xFF) / 255.0;
+  CGFloat b = (color & 0xFF) / 255.0;
+  return [NSColor colorWithRed:r green:g blue:b alpha:a];
+}
+
+void cw_nswindow_update_traffic_light(void *ns_window,
+                                      const cw_traffic_light_config_t *config) {
   NSWindow *window = (__bridge NSWindow *)ns_window;
   CWWindowDraggingView *draggingView = [CWWindowDraggingView forWindow:window];
-  WindowButtonsProxy *trafficLight = draggingView.trafficLight;
+  CWWindowButtonsProxy *trafficLight = draggingView.trafficLight;
 
-  if (enabled) {
-    NSPoint margin = NSMakePoint(x, y);
-    [trafficLight setMargin:&margin];
+  NSPoint margin = NSMakePoint(config->offset_x, config->offset_y);
+  [trafficLight setMargin:&margin];
+
+  NSAppearance *appearance = nil;
+  if (config->appearance == CW_APPEARANCE_LIGHT) {
+    appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+  } else if (config->appearance == CW_APPEARANCE_DARK) {
+    appearance = [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
+  }
+  [trafficLight setButttonAppearance:appearance];
+
+  if (config->custom_inactive_traffic_light) {
+    CWWindowButtonsProxyInactiveConfiguration *inactiveConfig =
+        [CWWindowButtonsProxyInactiveConfiguration new];
+    inactiveConfig.showAsInactiveInKeyWindow =
+        config->show_as_inactive_in_key_window;
+    inactiveConfig.backgroundColor =
+        colorFromARGB(config->inactive_background_color);
+    inactiveConfig.borderColor = colorFromARGB(config->inactive_border_color);
+    inactiveConfig.borderWidth = config->inactive_border_width;
+    [trafficLight setInactiveConfiguration:inactiveConfig];
   }
 }
 
 cw_size_t cw_nswindow_traffic_light_size(void *ns_window) {
   NSWindow *window = (__bridge NSWindow *)ns_window;
   CWWindowDraggingView *draggingView = [CWWindowDraggingView forWindow:window];
-  WindowButtonsProxy *trafficLight = draggingView.trafficLight;
+  CWWindowButtonsProxy *trafficLight = draggingView.trafficLight;
   NSRect bounds = [trafficLight getButtonsBounds];
   return (cw_size_t){bounds.size.width, bounds.size.height};
 }

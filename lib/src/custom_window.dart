@@ -8,6 +8,8 @@ import 'custom_window_macos.dart';
 import 'custom_window_win32.dart';
 import 'custom_window_linux.dart';
 
+import 'widgets.dart' show WindowTrafficLightInactiveConfigration;
+
 abstract class CustomWindow {
   static CustomWindow? forController(BaseWindowController controller) {
     return _expando[controller];
@@ -50,7 +52,11 @@ abstract class CustomWindow {
 
   void setDraggableRectForElement(BuildContext element, Rect? rect);
   void setDragExcludeRectForElement(BuildContext element, Rect? rect);
-  void setTrafficLightPosition(Offset offset);
+  void setTrafficLightConfiguration(
+    Offset offset,
+    Brightness? brightness,
+    WindowTrafficLightInactiveConfigration? inactiveConfigration,
+  );
   void setMaximizeButtonFrame(BuildContext element, Rect? rect);
   Size getTrafficLightSize();
   void requestClose();

@@ -27,13 +27,14 @@ external void cw_nswindow_disable_draggable_areas(
 );
 
 @ffi.Native<
-  ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Bool, ffi.Double, ffi.Double)
+  ffi.Void Function(
+    ffi.Pointer<ffi.Void>,
+    ffi.Pointer<cw_traffic_light_config_t>,
+  )
 >()
 external void cw_nswindow_update_traffic_light(
   ffi.Pointer<ffi.Void> ns_window,
-  bool enabled,
-  double x,
-  double y,
+  ffi.Pointer<cw_traffic_light_config_t> config,
 );
 
 @ffi.Native<cw_size_t Function(ffi.Pointer<ffi.Void>)>()
@@ -94,6 +95,50 @@ final class cw_size_t extends ffi.Struct {
 
   @ffi.Double()
   external double h;
+}
+
+enum cw_appearance_t {
+  CW_APPEARANCE_AUTO(0),
+  CW_APPEARANCE_LIGHT(1),
+  CW_APPEARANCE_DARK(2);
+
+  final int value;
+  const cw_appearance_t(this.value);
+
+  static cw_appearance_t fromValue(int value) => switch (value) {
+    0 => CW_APPEARANCE_AUTO,
+    1 => CW_APPEARANCE_LIGHT,
+    2 => CW_APPEARANCE_DARK,
+    _ => throw ArgumentError('Unknown value for cw_appearance_t: $value'),
+  };
+}
+
+final class cw_traffic_light_config_t extends ffi.Struct {
+  @ffi.Double()
+  external double offset_x;
+
+  @ffi.Double()
+  external double offset_y;
+
+  @ffi.UnsignedInt()
+  external int appearanceAsInt;
+
+  cw_appearance_t get appearance => cw_appearance_t.fromValue(appearanceAsInt);
+
+  @ffi.Bool()
+  external bool custom_inactive_traffic_light;
+
+  @ffi.Int64()
+  external int inactive_background_color;
+
+  @ffi.Int64()
+  external int inactive_border_color;
+
+  @ffi.Double()
+  external double inactive_border_width;
+
+  @ffi.Bool()
+  external bool show_as_inactive_in_key_window;
 }
 
 final class cw_delegate_config_t extends ffi.Struct {

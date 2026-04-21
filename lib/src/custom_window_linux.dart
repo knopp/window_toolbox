@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'custom_window.dart';
 import 'dart:ffi' as ffi;
 import 'linux.g.dart';
+import 'widgets.dart' show WindowTrafficLightInactiveConfigration;
 
 class CustomWindowLinux extends CustomWindow {
   CustomWindowLinux(this.controller) {
@@ -31,7 +32,11 @@ class CustomWindowLinux extends CustomWindow {
   void setMaximizeButtonFrame(BuildContext element, Rect? rect) {}
 
   @override
-  void setTrafficLightPosition(Offset offset) {}
+  void setTrafficLightConfiguration(
+    Offset offset,
+    Brightness? brightness,
+    WindowTrafficLightInactiveConfigration? inactiveConfigration,
+  ) {}
 
   @override
   Size getTrafficLightSize() {

@@ -6,10 +6,24 @@
 
 #import <Cocoa/Cocoa.h>
 
-// Manipulating the window buttons.
-@interface WindowButtonsProxy : NSObject
+@interface CWWindowButtonsProxyInactiveConfiguration : NSObject
 
-- (id)initWithWindow:(NSWindow *)window;
+@property(readwrite, nonatomic) NSColor *backgroundColor;
+@property(readwrite, nonatomic) NSColor *borderColor;
+@property(readwrite, nonatomic) CGFloat borderWidth;
+@property(readwrite, nonatomic) BOOL showAsInactiveInKeyWindow;
+
+@end
+
+// Manipulating the window buttons.
+@interface CWWindowButtonsProxy : NSObject
+
+- (id)initWithContainer:(NSView *)container;
+
+- (void)setInactiveConfiguration:
+    (CWWindowButtonsProxyInactiveConfiguration *)configuration;
+
+- (void)setButttonAppearance:(NSAppearance *)appearance;
 
 // Set left-top margin of the window buttons..
 - (void)setMargin:(const NSPoint *)margin;

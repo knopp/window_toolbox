@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:headless_widgets/headless_widgets.dart';
 import 'custom_window.dart';
 import 'linux_extra.dart';
@@ -55,6 +54,20 @@ enum WindowTrafficLightMode {
   removed,
 }
 
+class WindowTrafficLightInactiveConfigration {
+  WindowTrafficLightInactiveConfigration({
+    required this.backgroundColor,
+    this.borderColor = Colors.transparent,
+    this.borderWidth = 0,
+    this.showAsInactiveInKeyWindow = false,
+  });
+
+  final Color backgroundColor;
+  final Color borderColor;
+  final double borderWidth;
+  final bool showAsInactiveInKeyWindow;
+}
+
 /// Represents macOS traffic light buttons. Wherever this widget is placed, the
 /// window traffic light buttons will be positioned.
 ///
@@ -63,10 +76,16 @@ class WindowTrafficLight extends StatefulWidget {
   const WindowTrafficLight({
     super.key,
     this.mode = WindowTrafficLightMode.visible,
+    this.brightness,
+    this.inactiveConfigration,
   });
 
   /// Traffic light visibility mode.
   final WindowTrafficLightMode mode;
+
+  final Brightness? brightness;
+
+  final WindowTrafficLightInactiveConfigration? inactiveConfigration;
 
   @override
   State<WindowTrafficLight> createState() => _WindowTrafficLightState();
@@ -464,9 +483,17 @@ class _WindowTrafficLightState
   void reportFrame(CustomWindow window, Rect? rect) {
     if (widget.mode == WindowTrafficLightMode.invisible ||
         widget.mode == WindowTrafficLightMode.removed) {
-      window.setTrafficLightPosition(Offset(0, -100));
+      window.setTrafficLightConfiguration(
+        Offset(0, -100),
+        null,
+        null,
+      );
     } else if (rect != null) {
-      window.setTrafficLightPosition(rect.topLeft);
+      window.setTrafficLightConfiguration(
+        rect.topLeft,
+        widget.brightness,
+        widget.inactiveConfigration,
+      );
     }
   }
 }
