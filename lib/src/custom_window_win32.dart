@@ -9,6 +9,7 @@ import 'package:flutter/src/widgets/_window_win32.dart' hide HWND;
 import 'dart:ffi' hide Size;
 
 import 'win32_util.dart';
+import 'widgets.dart' show WindowTrafficLightInactiveConfigration;
 
 class SubclassState {
   bool needRearmMouseTracker = false;
@@ -179,7 +180,11 @@ class CustomWindowWin32 extends CustomWindow {
   }
 
   @override
-  void setTrafficLightPosition(Offset offset) {}
+  void setTrafficLightConfiguration(
+    Offset offset,
+    Brightness? brightness,
+    WindowTrafficLightInactiveConfigration? inactiveConfigration,
+  ) {}
 
   @override
   void requestClose() {

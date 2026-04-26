@@ -7,6 +7,7 @@ import 'custom_window.dart';
 import 'invert_rectanges.dart';
 import 'macos.g.dart';
 import 'macos_extra.dart';
+import 'widgets.dart' show WindowTrafficLightInactiveConfigration;
 
 import 'dart:ffi' hide Size;
 import 'package:ffi/ffi.dart' as ffi;
@@ -33,13 +34,39 @@ class CustomWindowMacOS extends CustomWindow with WindowDelegateMacOS {
   }
 
   @override
-  void setTrafficLightPosition(Offset offset) {
+  void setTrafficLightConfiguration(
+    Offset offset,
+    Brightness? brightness,
+    WindowTrafficLightInactiveConfigration? inactiveConfigration,
+  ) {
+    final config = ffi.calloc<cw_traffic_light_config_t>();
+    config.ref.offset_x = offset.dx;
+    config.ref.offset_y = offset.dy;
+
+    config.ref.appearanceAsInt = switch (brightness) {
+      Brightness.light => cw_appearance_t.CW_APPEARANCE_LIGHT.value,
+      Brightness.dark => cw_appearance_t.CW_APPEARANCE_DARK.value,
+      null => cw_appearance_t.CW_APPEARANCE_AUTO.value,
+    };
+
+    if (inactiveConfigration != null) {
+      config.ref.custom_inactive_traffic_light = true;
+      config.ref.inactive_background_color = inactiveConfigration
+          .backgroundColor
+          .toARGB32();
+      config.ref.inactive_border_color = inactiveConfigration.borderColor
+          .toARGB32();
+      config.ref.inactive_border_width = inactiveConfigration.borderWidth;
+      config.ref.show_as_inactive_in_key_window =
+          inactiveConfigration.showAsInactiveInKeyWindow;
+    } else {
+      config.ref.custom_inactive_traffic_light = false;
+    }
     cw_nswindow_update_traffic_light(
       controller.windowHandle,
-      true,
-      offset.dx,
-      offset.dy,
+      config,
     );
+    ffi.calloc.free(config);
   }
 
   bool _updateScheduled = false;

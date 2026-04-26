@@ -37,7 +37,7 @@ void main(List<String> args) async {
           'src/window_buttons_proxy.m',
         ],
         language: Language.objectiveC,
-        frameworks: ['AppKit'],
+        frameworks: ['AppKit', 'QuartzCore'],
         flags: [
           // ignore: dead_code
           if (debugBuild) ...[

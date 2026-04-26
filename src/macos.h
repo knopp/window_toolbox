@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,8 +30,26 @@ EXPORT void cw_nswindow_update_draggable_areas(void *ns_window,
 
 EXPORT void cw_nswindow_disable_draggable_areas(void *ns_window);
 
-EXPORT void cw_nswindow_update_traffic_light(void *ns_window, bool enabled,
-                                             double x, double y);
+typedef enum {
+  CW_APPEARANCE_AUTO,
+  CW_APPEARANCE_LIGHT,
+  CW_APPEARANCE_DARK,
+} cw_appearance_t;
+
+typedef struct {
+  double offset_x;
+  double offset_y;
+  cw_appearance_t appearance;
+  bool custom_inactive_traffic_light;
+  int64_t inactive_background_color;
+  int64_t inactive_border_color;
+  double inactive_border_width;
+  bool show_as_inactive_in_key_window;
+} cw_traffic_light_config_t;
+
+EXPORT void
+cw_nswindow_update_traffic_light(void *ns_window,
+                                 const cw_traffic_light_config_t *config);
 
 EXPORT cw_size_t cw_nswindow_traffic_light_size(void *ns_window);
 
