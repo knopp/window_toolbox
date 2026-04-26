@@ -1,6 +1,6 @@
 name: window_toolbox
 description: "Fully custom windows and utilities for Flutter multi-window."
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/knopp/window_toolbox
 
 environment:
