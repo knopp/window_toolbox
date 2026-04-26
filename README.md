@@ -19,7 +19,7 @@ Once that is done, you can place various widgets in your widget tree to build dr
 
 - `WindowDragArea` - Widget that creates area that can be used to drag the window.
 - `WindowDragExcludeArea` - Marks places inside `WindowDragArea` that should not be draggable. This is useful for buttons in title bar, tabs, or other controls that should not participate in window dragging.
-- `WindowTrafficLight` - a "proxy" widget for macOS traffic light. Wherever this widget is placed, the actual macOS traffic light buttons will be positioned. This widget can also be used to hide the traffic light buttons completely.
+- `WindowTrafficLight` - a "proxy" widget for macOS traffic light. Wherever this widget is placed, the actual macOS traffic light buttons will be positioned. This widget can also be used to hide the traffic light buttons completely or change the style of inactive traffic light.
 - `MaximizeButton`, `MinimizeButton`, `CloseButton` - Widgets representing standard window buttons. These accept custom builders so the presentation is fully customizable, while ensuring the proper behavior on each platform. On Windows the `MaximizeButton` properly supports the [snap layout](https://support.microsoft.com/en-us/windows/snap-your-windows-885a9b1e-a983-a3b1-16cd-c531795e6241) popup.
 - `WindowBorder` - On Linux draws shadows, border and clips the content to round corners (if specified). On other platforms this widget has no effect, since shadows, borders and clipping are handled by the system compositor.
 
