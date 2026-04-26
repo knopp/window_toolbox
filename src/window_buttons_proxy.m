@@ -69,12 +69,18 @@ static bool IsRTL() {
   [super layout];
   NSRect bounds = self.bounds;
 
-  CGFloat effectiveButtonSize = NSHeight(bounds) - 4;
-  CGFloat horizontalPadding = 1;
-  CGFloat verticalPadding = 2;
-  CGFloat borderWidth = 0.5;
-  CGColorRef borderColor = [NSColor blackColor].CGColor;
-  CGColorRef backgroundColor = [NSColor grayColor].CGColor;
+
+  CGFloat effectiveButtonSize = NSHeight(bounds);
+  CGFloat horizontalPadding = 0;
+  CGFloat verticalPadding = 0;
+
+  if (bounds.size.width == 54.0 && bounds.size.height == 16.0) {
+    // Pre Tahoe.
+    effectiveButtonSize -= 4;
+    horizontalPadding = 1;
+    verticalPadding = 2;
+  }
+
   CGFloat cornerRadius = effectiveButtonSize / 2;
 
   CGRect frame = NSMakeRect(horizontalPadding, verticalPadding,
