@@ -309,6 +309,8 @@ void cw_nswindow_request_close(void *ns_window) {
 void cw_nswindow_set_style_mask(void *ns_window, unsigned long style_mask) {
   NSWindow *window = (__bridge NSWindow *)ns_window;
   window.styleMask = style_mask;
+  CWWindowDraggingView *draggingView = [CWWindowDraggingView forWindow:window];
+  [draggingView.trafficLight performLayout];
 }
 
 unsigned long cw_nswindow_get_style_mask(void *ns_window) {

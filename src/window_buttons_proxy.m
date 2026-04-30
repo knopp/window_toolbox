@@ -69,7 +69,6 @@ static bool IsRTL() {
   [super layout];
   NSRect bounds = self.bounds;
 
-
   CGFloat effectiveButtonSize = NSHeight(bounds);
   CGFloat horizontalPadding = 0;
   CGFloat verticalPadding = 0;
@@ -205,6 +204,55 @@ static bool IsRTL() {
   NSButton *middle = [self middleButton];
   NSButton *right = [self rightButton];
 
+  [CATransaction begin];
+  [CATransaction setDisableActions:YES];
+
+  if (_window.styleMask & NSWindowStyleMaskFullScreen ||
+      _inactiveConfiguration == nil) {
+    left.superview.alphaValue = 1;
+    _inactiveView.left.opacity = 0;
+    _inactiveView.middle.opacity = 0;
+    _inactiveView.right.opacity = 0;
+  } else {
+    bool showsActive = _inactiveView.mouseIn;
+    if (!_inactiveConfiguration.showAsInactiveInKeyWindow) {
+      showsActive |= _window.keyWindow;
+    }
+
+    if (showsActive) {
+      left.superview.alphaValue = 1;
+      _inactiveView.left.opacity = 0;
+      _inactiveView.middle.opacity = 0;
+      _inactiveView.right.opacity = 0;
+    } else {
+      left.superview.alphaValue = 0;
+      _inactiveView.left.opacity = 1;
+      _inactiveView.middle.opacity = 1;
+      _inactiveView.right.opacity = 1;
+    }
+
+    // Note: Setting alpha to exactly 0 will cause the button never be reenabled
+    // after updating window styleMask.
+    if (!left.enabled) {
+      left.alphaValue = 0.001;
+      _inactiveView.left.opacity = 1;
+    } else {
+      left.alphaValue = 1;
+    }
+    if (!middle.enabled) {
+      middle.alphaValue = 0.001;
+      _inactiveView.middle.opacity = 1;
+    } else {
+      middle.alphaValue = 1;
+    }
+    if (!right.enabled) {
+      right.alphaValue = 0.001;
+      _inactiveView.right.opacity = 1;
+    } else {
+      right.alphaValue = 1;
+    }
+  }
+
   float button_width = NSWidth(left.frame);
   float button_height = NSHeight(left.frame);
   float padding = NSMinX(middle.frame) - NSMaxX(left.frame);
@@ -239,47 +287,6 @@ static bool IsRTL() {
   }
 
   _inactiveView.frame = [self getButtonsBounds];
-
-  [CATransaction begin];
-  [CATransaction setDisableActions:YES];
-
-  if (_window.styleMask & NSWindowStyleMaskFullScreen ||
-      _inactiveConfiguration == nil) {
-    left.superview.alphaValue = 1;
-    _inactiveView.left.opacity = 0;
-    _inactiveView.middle.opacity = 0;
-    _inactiveView.right.opacity = 0;
-  } else {
-    bool showsActive = _inactiveView.mouseIn;
-    if (!_inactiveConfiguration.showAsInactiveInKeyWindow) {
-      showsActive |= _window.keyWindow;
-    }
-
-    if (showsActive) {
-      left.superview.alphaValue = 1;
-      _inactiveView.left.opacity = 0;
-      _inactiveView.middle.opacity = 0;
-      _inactiveView.right.opacity = 0;
-    } else {
-      left.superview.alphaValue = 0;
-      _inactiveView.left.opacity = 1;
-      _inactiveView.middle.opacity = 1;
-      _inactiveView.right.opacity = 1;
-    }
-
-    if (!left.enabled) {
-      left.alphaValue = 0;
-      _inactiveView.left.opacity = 1;
-    }
-    if (!middle.enabled) {
-      middle.alphaValue = 0;
-      _inactiveView.middle.opacity = 1;
-    }
-    if (!right.enabled) {
-      right.alphaValue = 0;
-      _inactiveView.right.opacity = 1;
-    }
-  }
 
   [CATransaction commit];
 }
