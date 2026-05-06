@@ -6,15 +6,10 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 
-(int, int) splitLParam(int lParam) {
-  int x = lParam & 0xFFFF;
-  int y = (lParam >> 16) & 0xFFFF;
-  if (x >= 0x8000) x -= 0x10000;
-  if (y >= 0x8000) y -= 0x10000;
-  return (x, y);
-}
+(int, int) splitLParam(int lParam) =>
+    (lParam.toSigned(16), (lParam >> 16).toSigned(16));
 
-int makeLParam(int x, int y) => (y << 16) | (x & 0xFFFF);
+int makeLParam(int x, int y) => ((y & 0xFFFF) << 16) | (x & 0xFFFF);
 
 (int, int) screenToClient(HWND hwnd, int screenX, int screenY) {
   final point = malloc<POINT>();
