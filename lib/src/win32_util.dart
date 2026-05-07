@@ -47,8 +47,20 @@ const TME_LEAVE = 0x00000002;
 const TME_CANCEL = 0x80000000;
 const TME_NONCLIENT = 0x00000010;
 
+const WM_SIZING = 0x0214;
 const WM_NCMOUSELEAVE = 0x02A2;
 const WM_MOUSELEAVE = 0x02A3;
+const WM_ENTERSIZEMOVE = 0x0231;
+const WM_EXITSIZEMOVE = 0x0232;
+
+const WMSZ_LEFT = 1;
+const WMSZ_RIGHT = 2;
+const WMSZ_TOP = 3;
+const WMSZ_TOPLEFT = 4;
+const WMSZ_TOPRIGHT = 5;
+const WMSZ_BOTTOM = 6;
+const WMSZ_BOTTOMLEFT = 7;
+const WMSZ_BOTTOMRIGHT = 8;
 
 @Native<Int32 Function(Pointer<TRACKMOUSEEVENT>)>(
   isLeaf: true,

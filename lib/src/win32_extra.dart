@@ -4,6 +4,7 @@ import 'dart:ffi' as ffi;
 
 import 'package:win32/win32.dart';
 import 'package:ffi/ffi.dart' as ffi;
+import 'win32_util.dart';
 
 /// Provides additional delegate methods for [WindowControllerWin32].
 ///
@@ -16,9 +17,17 @@ abstract mixin class WindowDelegateWin32 {
 
   /// Called during window resizing. Implementation can override target size
   /// to enforce specific aspect ratio or other constraints.
+  ///
+  /// The size is provided in physical pixels.
   Size? windowWillResizeToSize(Size newSize) {
     return null;
   }
+
+  /// Called when user starts resizing or moving the window.
+  void enterSizeMove() {}
+
+  /// Called when user finishes resizing or moving the window.
+  void exitSizeMove() {}
 }
 
 /// A message handler that can respond to windows message sent to window
@@ -117,6 +126,7 @@ extension WindowControllerWin32Extension on WindowControllerWin32 {
 
   /// Returns the current window frame in screen (physical) coordinates.
   /// The window frame includes the non-client area (title bar and borders).
+  /// The origin of the coordinate system is top left corner of the primary display.
   Rect getWindowFrame() {
     final rect = ffi.malloc<RECT>();
     GetWindowRect(HWND(windowHandle), rect);
@@ -132,6 +142,7 @@ extension WindowControllerWin32Extension on WindowControllerWin32 {
 
   /// Sets the window frame in screen (physical) coordinates.
   /// The window frame includes the non-client area (title bar and borders).
+  /// The origin of the coordinate system is top left corner of the primary display.
   void setWindowFrame(Rect frame) {
     SetWindowPos(
       HWND(windowHandle),
@@ -189,6 +200,8 @@ class _WindowControllerWin32Private {
 
   final WindowControllerWin32 controller;
 
+  bool _inResizeMove = false;
+
   int? handleWindowsMessage(
     HWND windowHandle,
     int message,
@@ -207,7 +220,67 @@ class _WindowControllerWin32Private {
         return result;
       }
     }
+    if (message == WM_SIZING) {
+      final rect = ffi.Pointer<RECT>.fromAddress(lParam);
+      final newSize = Size(
+        (rect.ref.right - rect.ref.left).toDouble(),
+        (rect.ref.bottom - rect.ref.top).toDouble(),
+      );
+      Size? modifiedSize;
+      for (final delegate in delegates) {
+        modifiedSize ??= delegate.windowWillResizeToSize(newSize);
+      }
+      if (modifiedSize != null) {
+        switch (wParam) {
+          case WMSZ_TOP:
+            rect.ref.top = rect.ref.bottom - modifiedSize.height.round();
+            rect.ref.left -= ((modifiedSize.width - newSize.width) / 2).round();
+            rect.ref.right = rect.ref.left + modifiedSize.width.round();
+            break;
+          case WMSZ_TOPLEFT:
+            rect.ref.top = rect.ref.bottom - modifiedSize.height.round();
+            rect.ref.left = rect.ref.right - modifiedSize.width.round();
+            break;
+          case WMSZ_TOPRIGHT:
+            rect.ref.top = rect.ref.bottom - modifiedSize.height.round();
+            rect.ref.right = rect.ref.left + modifiedSize.width.round();
+            break;
+          case WMSZ_LEFT:
+            rect.ref.left = rect.ref.right - modifiedSize.width.round();
+            rect.ref.top -= ((modifiedSize.height - newSize.height) / 2)
+                .round();
+            rect.ref.bottom = rect.ref.top + modifiedSize.height.round();
+            break;
+          case WMSZ_RIGHT:
+            rect.ref.right = rect.ref.left + modifiedSize.width.round();
+            rect.ref.top -= ((modifiedSize.height - newSize.height) / 2)
+                .round();
+            rect.ref.bottom = rect.ref.top + modifiedSize.height.round();
+            break;
+          case WMSZ_BOTTOMLEFT:
+            rect.ref.bottom = rect.ref.top + modifiedSize.height.round();
+            rect.ref.left = rect.ref.right - modifiedSize.width.round();
+            break;
+          case WMSZ_BOTTOMRIGHT:
+            rect.ref.bottom = rect.ref.top + modifiedSize.height.round();
+            rect.ref.right = rect.ref.left + modifiedSize.width.round();
+            break;
+          case WMSZ_BOTTOM:
+            rect.ref.bottom = rect.ref.top + modifiedSize.height.round();
+            rect.ref.left -= ((modifiedSize.width - newSize.width) / 2).round();
+            rect.ref.right = rect.ref.left + modifiedSize.width.round();
+            break;
+          default:
+        }
+        return 1;
+      }
+    }
     if (message == WM_WINDOWPOSCHANGING) {
+      if (_inResizeMove) {
+        // Ignore - live resizing is handled by WM_SIZING which gives us more
+        // control over which border is dragged to preserve the opposite border.
+        return null;
+      }
       DefWindowProc(
         HWND(windowHandle),
         message,
@@ -215,20 +288,34 @@ class _WindowControllerWin32Private {
         LPARAM(lParam),
       );
       final windowPos = ffi.Pointer<WINDOWPOS>.fromAddress(lParam);
-      final dpi = GetDpiForWindow(HWND(windowHandle));
+
       final originalSize = Size(
-        windowPos.ref.cx * 96 / dpi,
-        windowPos.ref.cy * 96 / dpi,
+        windowPos.ref.cx.toDouble(),
+        windowPos.ref.cy.toDouble(),
       );
       Size? newSize;
       for (final delegate in delegates) {
         newSize ??= delegate.windowWillResizeToSize(originalSize);
       }
       if (newSize != null) {
-        windowPos.ref.cx = (newSize.width * dpi / 96).round();
-        windowPos.ref.cy = (newSize.height * dpi / 96).round();
+        windowPos.ref.cx = newSize.width.round();
+        windowPos.ref.cy = newSize.height.round();
       }
       return 0;
+    }
+    if (message == WM_ENTERSIZEMOVE) {
+      _inResizeMove = true;
+      for (final delegate in delegates) {
+        delegate.enterSizeMove();
+      }
+      return null;
+    }
+    if (message == WM_EXITSIZEMOVE) {
+      _inResizeMove = false;
+      for (final delegate in delegates) {
+        delegate.exitSizeMove();
+      }
+      return null;
     }
     return null;
   }

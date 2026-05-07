@@ -18,6 +18,8 @@ abstract mixin class WindowDelegateMacOS {
 
   /// Called during window resizing. Implementation can override target size
   /// to enforce specific aspect ratio or other constraints.
+  ///
+  /// The size is provided in logical pixels.
   Size? windowWillResizeToSize(Size newSize) {
     return null;
   }
@@ -111,6 +113,8 @@ extension WindowControllerMacOSExtension on WindowControllerMacOS {
     );
   }
 
+  /// Returns the current window frame in logical coordinates.
+  /// The origin of the coordinate system is top left corner of the primary display.
   Rect getWindowFrame() {
     final cwRect = cw_nswindow_get_frame(windowHandle);
     return Rect.fromLTWH(
@@ -121,6 +125,8 @@ extension WindowControllerMacOSExtension on WindowControllerMacOS {
     );
   }
 
+  /// Sets the window frame in logical coordinates.
+  /// The origin of the coordinate system is top left corner of the primary display.
   void setWindowFrame(Rect frame) {
     final cwRect = ffi.Struct.create<cw_rect_t>();
     cwRect.x = frame.left;
