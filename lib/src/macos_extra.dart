@@ -113,6 +113,28 @@ extension WindowControllerMacOSExtension on WindowControllerMacOS {
     );
   }
 
+  /// Updates the window size. This is useful when delegate implements [windowWillResizeToSize]
+  /// and needs to enforce new size.
+  void updateSize() {
+    final frame = getWindowFrame();
+    final delegates = _WindowControllerMacOSPrivate.forController(
+      this,
+    )._delegates;
+    for (final delegate in delegates) {
+      final newSize = delegate.windowWillResizeToSize(frame.size);
+      if (newSize != null) {
+        final newFrame = Rect.fromLTWH(
+          frame.left,
+          frame.top,
+          newSize.width,
+          newSize.height,
+        );
+        setWindowFrame(newFrame);
+        return;
+      }
+    }
+  }
+
   /// Returns the current window frame in logical coordinates.
   /// The origin of the coordinate system is top left corner of the primary display.
   Rect getWindowFrame() {
