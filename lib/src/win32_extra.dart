@@ -1,5 +1,5 @@
 import 'package:flutter/src/widgets/_window_win32.dart' hide HWND;
-import 'dart:ui' show Size;
+import 'dart:ui' show Size, Rect;
 import 'dart:ffi' as ffi;
 
 import 'package:win32/win32.dart';
@@ -113,6 +113,35 @@ extension WindowControllerWin32Extension on WindowControllerWin32 {
   bool get canMaximize {
     int style = GetWindowLongPtr(HWND(windowHandle), GWL_STYLE).value;
     return (style & WS_MAXIMIZEBOX) != 0;
+  }
+
+  /// Returns the current window frame in screen (physical) coordinates.
+  /// The window frame includes the non-client area (title bar and borders).
+  Rect getWindowFrame() {
+    final rect = ffi.malloc<RECT>();
+    GetWindowRect(HWND(windowHandle), rect);
+    final result = Rect.fromLTRB(
+      rect.ref.left.toDouble(),
+      rect.ref.top.toDouble(),
+      rect.ref.right.toDouble(),
+      rect.ref.bottom.toDouble(),
+    );
+    ffi.malloc.free(rect);
+    return result;
+  }
+
+  /// Sets the window frame in screen (physical) coordinates.
+  /// The window frame includes the non-client area (title bar and borders).
+  void setWindowFrame(Rect frame) {
+    SetWindowPos(
+      HWND(windowHandle),
+      null,
+      frame.left.round(),
+      frame.top.round(),
+      frame.width.round(),
+      frame.height.round(),
+      SWP_NOZORDER | SWP_NOACTIVATE,
+    );
   }
 }
 

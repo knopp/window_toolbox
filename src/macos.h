@@ -68,6 +68,8 @@ EXPORT unsigned long cw_nswindow_get_collection_behavior(void *ns_window);
 
 typedef struct {
   cw_size_t (*on_window_will_resize)(cw_size_t new_size);
+  void (*on_window_will_start_live_resize)();
+  void (*on_window_did_end_live_resize)();
   void (*on_window_will_close)();
   void (*on_window_will_enter_fullscreen)();
   void (*on_window_did_enter_fullscreen)();
@@ -78,6 +80,9 @@ typedef struct {
 
 EXPORT void cw_nswindow_init_delegate(void *ns_window,
                                       cw_delegate_config_t config);
+
+EXPORT void cw_nswindow_set_frame(void *ns_window, cw_rect_t frame);
+EXPORT cw_rect_t cw_nswindow_get_frame(void *ns_window);
 
 #ifdef __cplusplus
 }

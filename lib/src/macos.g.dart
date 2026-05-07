@@ -75,6 +75,17 @@ external void cw_nswindow_init_delegate(
   cw_delegate_config_t config,
 );
 
+@ffi.Native<ffi.Void Function(ffi.Pointer<ffi.Void>, cw_rect_t)>()
+external void cw_nswindow_set_frame(
+  ffi.Pointer<ffi.Void> ns_window,
+  cw_rect_t frame,
+);
+
+@ffi.Native<cw_rect_t Function(ffi.Pointer<ffi.Void>)>()
+external cw_rect_t cw_nswindow_get_frame(
+  ffi.Pointer<ffi.Void> ns_window,
+);
+
 final class cw_rect_t extends ffi.Struct {
   @ffi.Double()
   external double x;
@@ -146,6 +157,12 @@ final class cw_delegate_config_t extends ffi.Struct {
     ffi.NativeFunction<cw_size_t Function(cw_size_t new_size)>
   >
   on_window_will_resize;
+
+  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
+  on_window_will_start_live_resize;
+
+  external ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
+  on_window_did_end_live_resize;
 
   external ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
   on_window_will_close;

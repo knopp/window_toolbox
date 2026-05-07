@@ -91,6 +91,22 @@ static size_t associate_object_key;
   return [self __windowWillResize:sender toSize:frameSize];
 }
 
+- (void)__windowWillStartLiveResize:(NSNotification *)notification {
+  CWDelegateState *state = [CWDelegateState stateForObject:self];
+  if (state) {
+    state->_config.on_window_will_start_live_resize();
+  }
+  [self __windowWillStartLiveResize:notification];
+}
+
+- (void)__windowDidEndLiveResize:(NSNotification *)notification {
+  CWDelegateState *state = [CWDelegateState stateForObject:self];
+  if (state) {
+    state->_config.on_window_did_end_live_resize();
+  }
+  [self __windowDidEndLiveResize:notification];
+}
+
 // This depends on particular method that's not part of window delegate :-/
 - (void)__windowWillClose {
   CWDelegateState *state = [CWDelegateState stateForObject:self];
@@ -373,6 +389,43 @@ cw_size_t cw_nswindow_traffic_light_size(void *ns_window) {
   CWWindowButtonsProxy *trafficLight = draggingView.trafficLight;
   NSRect bounds = [trafficLight getButtonsBounds];
   return (cw_size_t){bounds.size.width, bounds.size.height};
+}
+
+static NSRect computeGlobalScreenFrame() {
+  NSRect frame = NSZeroRect;
+  for (NSScreen *screen in [NSScreen screens]) {
+    NSRect screenFrame = screen.frame;
+    if (NSIsEmptyRect(frame)) {
+      frame = screenFrame;
+    } else {
+      frame = NSUnionRect(frame, screenFrame);
+    }
+  }
+  return frame;
+}
+
+static void flipRect(NSRect *rect, const NSRect *globalScreenFrame) {
+  // Flip the y coordinate to match Flutter coordinate system.
+  rect->origin.y =
+      (globalScreenFrame->origin.y + globalScreenFrame->size.height) -
+      (rect->origin.y + rect->size.height);
+}
+
+void cw_nswindow_set_frame(void *ns_window, cw_rect_t frame) {
+  NSWindow *window = (__bridge NSWindow *)ns_window;
+  NSRect newFrame = NSMakeRect(frame.x, frame.y, frame.w, frame.h);
+  NSRect globalScreenFrame = computeGlobalScreenFrame();
+  flipRect(&newFrame, &globalScreenFrame);
+  [window setFrame:newFrame display:YES];
+}
+
+cw_rect_t cw_nswindow_get_frame(void *ns_window) {
+  NSWindow *window = (__bridge NSWindow *)ns_window;
+  NSRect frame = window.frame;
+  NSRect globalScreenFrame = computeGlobalScreenFrame();
+  flipRect(&frame, &globalScreenFrame);
+  return (cw_rect_t){frame.origin.x, frame.origin.y, frame.size.width,
+                     frame.size.height};
 }
 
 @implementation CWDefaultWindowDelegate
