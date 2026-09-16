@@ -628,13 +628,16 @@ class _ResizingHandles extends StatelessWidget {
     };
     return MouseRegion(
       cursor: cursor,
-      child: GestureDetector(
+      child: Listener(
         behavior: HitTestBehavior.opaque,
-        onPanStart: (details) {
+        onPointerDown: (event) {
+          if (event.buttons != kPrimaryButton) {
+            return;
+          }
           final customWindow = CustomWindow.forController(
             WindowScope.of(context),
           )!;
-          customWindow.startWindowResizeDrag(details.globalPosition, edge);
+          customWindow.startWindowResizeDrag(event.position, edge);
         },
         child: SizedBox.expand(),
       ),
