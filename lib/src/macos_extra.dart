@@ -79,7 +79,7 @@ extension WindowControllerMacOSExtension on WindowControllerMacOS {
   /// window close button in the traffic light.
   ///
   /// Note that even if [canClose] is set to `true`, window closing can be still
-  /// prevented from [RegularWindowControllerDelegate.onWindowCloseRequested] method.
+  /// prevented from [WindowControllerDelegate.onWindowCloseRequested] method.
   set canClose(bool value) {
     int styleMask = cw_nswindow_get_style_mask(windowHandle);
     if (value) {

@@ -45,17 +45,6 @@ void cw_window_begin_resize_drag(
   y,
 );
 
-@ffi.Native<
-  ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int, ffi.Int, ffi.Int, ffi.Int)
->()
-external void cw_window_set_shadow_width(
-  ffi.Pointer<ffi.Void> gtk_window,
-  int top,
-  int left,
-  int bottom,
-  int right,
-);
-
 @ffi.Native<ffi.Void Function(ffi.Pointer<ffi.Void>, cw_delegate_config_t)>()
 external void cw_gtk_window_init_delegate(
   ffi.Pointer<ffi.Void> gtk_window,

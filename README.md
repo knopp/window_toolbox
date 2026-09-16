@@ -11,7 +11,7 @@ In addition to custom window chrome, this package also provides extension classe
 To customize window, it is necessary first to start with disabling existing window decorations:
 
 ```dart
-controller = RegularWindowController(...);
+controller = WindowController(...);
 controller.enableCustomWindow();
 ```
 
@@ -42,7 +42,7 @@ This includes:
 #### Example: Setting [NSWindowCollectionBehavior](https://developer.apple.com/documentation/appkit/nswindow/collectionbehavior-swift.struct) on macOS
 
 ```dart
-final controller = RegularWindowController(...);
+final controller = WindowController(...);
 if (controller is WindowControllerMacOS) {
   final controllerMacOS = controller as WindowControllerMacOS;
   // Add fullScreenNone to existing collection behavior to disable

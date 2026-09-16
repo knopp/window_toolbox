@@ -58,6 +58,7 @@ static void synthesize_button_release() {
     GdkEvent *release_event = gdk_event_copy(last_press_event);
     release_event->type = GDK_BUTTON_RELEASE;
     gtk_main_do_event(release_event);
+    gdk_event_free(release_event);
   } else {
     fprintf(stderr, "No last press event found\n");
   }
@@ -79,41 +80,6 @@ void cw_window_begin_resize_drag(void *gtk_window, cw_window_edge_t edge, int x,
                                GDK_BUTTON_PRIMARY, x, y, GDK_CURRENT_TIME);
 }
 
-struct ShadowWidth {
-  int top;
-  int left;
-  int bottom;
-  int right;
-};
-
-static void set_shadow_width_on_realize(GtkWidget *widget, gpointer user_data) {
-  struct ShadowWidth *shadow_width = (struct ShadowWidth *)user_data;
-  GdkWindow *gdk_window = gtk_widget_get_window(widget);
-  g_return_if_fail(gdk_window != NULL);
-  gdk_window_set_shadow_width(gdk_window, shadow_width->top, shadow_width->left,
-                              shadow_width->bottom, shadow_width->right);
-  free(shadow_width);
-
-  g_signal_handlers_disconnect_by_func(
-      widget, G_CALLBACK(set_shadow_width_on_realize), user_data);
-}
-
-EXPORT void cw_window_set_shadow_width(void *gtk_window, int top, int left,
-                                       int bottom, int right) {
-  GtkWidget *window = GTK_WIDGET(gtk_window);
-  GdkWindow *gdk_window = gtk_widget_get_window(window);
-  if (gdk_window != NULL) {
-    gdk_window_set_shadow_width(gdk_window, top, left, bottom, right);
-  } else {
-    struct ShadowWidth *shadow_width = malloc(sizeof(struct ShadowWidth));
-    shadow_width->top = top;
-    shadow_width->left = left;
-    shadow_width->bottom = bottom;
-    shadow_width->right = right;
-    g_signal_connect(window, "realize", G_CALLBACK(set_shadow_width_on_realize),
-                     shadow_width);
-  }
-}
 typedef struct {
   cw_delegate_config_t config;
 } cw_delegate_state_t;
