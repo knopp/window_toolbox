@@ -65,16 +65,7 @@ class CustomWindowLinux extends CustomWindow {
     double left,
     double bottom,
     double right,
-  ) {
-    final window = controller.windowHandle;
-    cw_window_set_shadow_width(
-      window,
-      top.round(),
-      left.round(),
-      bottom.round(),
-      right.round(),
-    );
-  }
+  ) {}
 
   @override
   void startWindowMoveDrag(Offset globalPosition) {
