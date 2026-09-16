@@ -58,6 +58,7 @@ static void synthesize_button_release() {
     GdkEvent *release_event = gdk_event_copy(last_press_event);
     release_event->type = GDK_BUTTON_RELEASE;
     gtk_main_do_event(release_event);
+    gdk_event_free(release_event);
   } else {
     fprintf(stderr, "No last press event found\n");
   }
