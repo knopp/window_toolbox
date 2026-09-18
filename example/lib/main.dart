@@ -12,7 +12,7 @@ import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/src/widgets/_window.dart';
 import 'package:window_toolbox_example/icons.dart';
 
-class MainControllerWindowDelegate with RegularWindowControllerDelegate {
+class MainControllerWindowDelegate with WindowControllerDelegate {
   @override
   void onWindowDestroyed() {
     super.onWindowDestroyed();
@@ -32,7 +32,7 @@ class MultiWindowApp extends StatefulWidget {
 }
 
 class MainWindow extends StatelessWidget {
-  final RegularWindowController controller;
+  final WindowController controller;
 
   const MainWindow({super.key, required this.controller});
 
@@ -216,12 +216,12 @@ class _WindowButtons extends StatelessWidget {
 }
 
 class _MultiWindowAppState extends State<MultiWindowApp> {
-  late final RegularWindowController controller;
+  late final WindowController controller;
 
   @override
   void initState() {
-    controller = RegularWindowController(
-      preferredSize: const Size(800, 600),
+    controller = WindowController(
+      size: const Size(800, 600),
       title: 'Multi-Window Reference Application',
       delegate: MainControllerWindowDelegate(),
     );
@@ -230,14 +230,8 @@ class _MultiWindowAppState extends State<MultiWindowApp> {
   }
 
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return RegularWindow(
+    return Window(
       controller: controller,
       child: WindowBorder(
         child: MaterialApp(

@@ -234,7 +234,7 @@ class _MinimizeButtonState extends State<MinimizeButton> {
     bool enabled = widget.enabled;
     final controller = WindowScope.of(context);
     if (controller is WindowControllerWin32) {
-      enabled &= (controller as WindowControllerWin32).canMinimize;
+      enabled &= controller.canMinimize;
     }
     return WindowDragExcludeArea(
       child: Button(
@@ -256,7 +256,7 @@ class _MinimizeButtonState extends State<MinimizeButton> {
 
   void _onPressed() {
     final controller = WindowScope.of(context);
-    if (controller is RegularWindowController) {
+    if (controller is WindowController) {
       controller.setMinimized(true);
     } else if (controller is DialogWindowController) {
       controller.setMinimized(true);
@@ -285,7 +285,7 @@ class _MaximizeButtonState extends _FrameReportingState<MaximizeButton> {
     bool enabled = widget.enabled;
     final controller = WindowScope.of(context);
     if (controller is WindowControllerWin32) {
-      enabled &= (controller as WindowControllerWin32).canMaximize;
+      enabled &= controller.canMaximize;
     }
     return WindowDragExcludeArea(
       child: Button(
@@ -297,7 +297,7 @@ class _MaximizeButtonState extends _FrameReportingState<MaximizeButton> {
               hovered: buttonState.hovered,
               pressed: buttonState.pressed,
             ),
-            _isMaximized,
+            WindowScope.isMaximizedOf(context),
           );
         },
         focusNode: _buttonNode,
@@ -307,32 +307,12 @@ class _MaximizeButtonState extends _FrameReportingState<MaximizeButton> {
   }
 
   void _onPressed() {
-    final controller = WindowScope.of(context) as RegularWindowController;
+    final controller = WindowScope.of(context) as WindowController;
     controller.setMaximized(!controller.isMaximized);
   }
 
   BaseWindowController? _controller;
-  bool _lastMaximized = false;
   final _buttonNode = FocusNode();
-  bool get _isMaximized => (_controller as RegularWindowController).isMaximized;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _controller?.removeListener(_controllerListener);
-    _controller = WindowScope.of(context);
-    _controller!.addListener(_controllerListener);
-  }
-
-  void _controllerListener() {
-    if (!mounted) {
-      return;
-    }
-    if (_isMaximized != _lastMaximized) {
-      _lastMaximized = _isMaximized;
-      setState(() {});
-    }
-  }
 
   @override
   void initState() {
@@ -345,7 +325,6 @@ class _MaximizeButtonState extends _FrameReportingState<MaximizeButton> {
   void dispose() {
     super.dispose();
     _buttonNode.dispose();
-    _controller?.removeListener(_controllerListener);
   }
 
   @override
@@ -419,10 +398,10 @@ class _WindowDragAreaState extends _FrameReportingState<WindowDragArea> {
     }
     final controller = WindowScope.of(context);
     if (customWindow?.titlebarNeedsDoubleClickDetector() == true &&
-        controller is RegularWindowController) {
+        controller is WindowController) {
       bool canMaximize = true;
       if (controller is WindowControllerWin32) {
-        canMaximize &= (controller as WindowControllerWin32).canMaximize;
+        canMaximize &= controller.canMaximize;
       }
       if (canMaximize) {
         gestures[_DoubleTapToMaximizeGestureRecognizer] =
